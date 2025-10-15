@@ -2,15 +2,15 @@
   "placeholderImages": [
     {
       "id": "home-hero",
-      "description": "A modern classroom or study environment.",
+      "description": "Students writing an exam in a well-lit hall.",
       "imageUrl": "https://picsum.photos/seed/exam-hero/800/600",
-      "imageHint": "modern classroom"
+      "imageHint": "exam hall"
     },
     {
       "id": "auth-hero",
-      "description": "A student focused on a computer screen.",
+      "description": "A focused student taking an online exam on a laptop.",
       "imageUrl": "https://picsum.photos/seed/auth-hero/800/1000",
-      "imageHint": "student computer"
+      "imageHint": "student exam"
     }
   ]
 }
