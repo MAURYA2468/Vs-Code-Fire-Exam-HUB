@@ -19,7 +19,7 @@ export default function TeacherTestsPage() {
     if (user) {
       const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
       const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
-      const teacherTests = allTests.filter(t => t.teacherId === user.id);
+      const teacherTests = allTests.filter(t => t.teacherId === user.id).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setTests(teacherTests);
     }
   }, [user]);

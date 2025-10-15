@@ -13,13 +13,12 @@ import Logo from '../Logo';
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, PlusCircle, BarChart, LogOut, FileText } from 'lucide-react';
+import { LayoutDashboard, BarChart, LogOut, FileText } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const teacherNavItems = [
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/teacher/tests', label: 'Tests', icon: FileText },
-  { href: '/teacher/tests/create', label: 'Create Test', icon: PlusCircle },
 ];
 
 const studentNavItems = [
@@ -31,6 +30,13 @@ export default function AppSidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const navItems = user?.role === 'teacher' ? teacherNavItems : studentNavItems;
+
+  const isLinkActive = (href: string) => {
+    if (href === '/teacher/tests') {
+      return pathname.startsWith('/teacher/tests');
+    }
+    return pathname === href;
+  }
 
   return (
     <>
@@ -45,7 +51,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href) && (item.href !== '/teacher/dashboard' || pathname === '/teacher/dashboard')}
+                isActive={isLinkActive(item.href)}
                 className="w-full"
               >
                 <Link href={item.href}>
