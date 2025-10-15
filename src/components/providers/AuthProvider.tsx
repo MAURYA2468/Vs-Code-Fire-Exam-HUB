@@ -5,8 +5,8 @@ import { User, UserRole } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, ReactNode } from "react";
 
-const USERS_STORAGE_KEY = "offline-exam-pro-users";
-const SESSION_STORAGE_KEY = "offline-exam-pro-session";
+const USERS_STORAGE_KEY = "exam-hub-users";
+const SESSION_STORAGE_KEY = "exam-hub-session";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);

@@ -16,9 +16,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
-const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
-const USERS_STORAGE_KEY = "offline-exam-pro-users";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
+const USERS_STORAGE_KEY = "exam-hub-users";
 
 const answerSchema = z.object({
     questionId: z.string(),

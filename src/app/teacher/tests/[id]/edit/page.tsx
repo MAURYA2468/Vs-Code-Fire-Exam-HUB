@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
 
 export default function EditTestPage() {
     const params = useParams();

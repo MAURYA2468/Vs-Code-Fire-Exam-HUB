@@ -7,7 +7,7 @@ const Logo = () => {
       <div className="rounded-lg bg-primary p-2">
         <GraduationCap className="h-6 w-6 text-primary-foreground" />
       </div>
-      <span className="font-headline">OfflineExamPro</span>
+      <span className="font-headline">Exam HUB</span>
     </div>
   );
 };

@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { format, parseISO } from 'date-fns';
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
 
 export default function TeacherTestsPage() {
   const { user } = useAuth();

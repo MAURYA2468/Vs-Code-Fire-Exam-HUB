@@ -9,9 +9,9 @@ import { format, parseISO } from "date-fns";
 import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
-const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
-const USERS_STORAGE_KEY = "offline-exam-pro-users";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
+const USERS_STORAGE_KEY = "exam-hub-users";
 
 interface SubmissionViewerProps {
     submissionId: string;

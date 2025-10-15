@@ -18,8 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, AlertTriangle, Clock } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
-const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
 
 type FormData = {
   answers: { [questionId: string]: string };

@@ -10,9 +10,9 @@ import { Loader2, Users, FileText, BarChart2, Eye, Edit } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
-const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
-const USERS_STORAGE_KEY = "offline-exam-pro-users";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
+const USERS_STORAGE_KEY = "exam-hub-users";
 
 type EnrichedSubmission = Submission & {
   studentName: string;

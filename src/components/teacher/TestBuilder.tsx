@@ -40,7 +40,7 @@ const testSchema = z.object({
 
 type TestFormData = z.infer<typeof testSchema>;
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
 
 interface TestBuilderProps {
     existingTest?: Test | null;

@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
-const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
 
 type EnrichedSubmission = Submission & {
   test: Test | null;

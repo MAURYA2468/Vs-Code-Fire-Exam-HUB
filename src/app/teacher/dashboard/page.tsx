@@ -10,9 +10,9 @@ import { FileText, Users, BarChart, PlusCircle, ArrowRight } from "lucide-react"
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
-const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
-const USERS_STORAGE_KEY = "offline-exam-pro-users";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
+const USERS_STORAGE_KEY = "exam-hub-users";
 
 type EnrichedSubmission = Submission & {
   studentName: string;

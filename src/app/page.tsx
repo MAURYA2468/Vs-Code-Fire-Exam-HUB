@@ -12,7 +12,7 @@ export default function Home() {
           <Logo />
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-          Welcome to OfflineExamPro
+          Welcome to Exam HUB
         </h1>
         <p className="mb-10 text-lg text-muted-foreground md:text-xl">
           The seamless solution for creating, managing, and taking exams offline.

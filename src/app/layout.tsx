@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 export const metadata: Metadata = {
-  title: 'OfflineExamPro',
+  title: 'Exam HUB',
   description: 'Create and take exams seamlessly.',
 };
 

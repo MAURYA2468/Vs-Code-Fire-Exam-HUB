@@ -8,7 +8,7 @@ import { ArrowRight, Clock, ListOrdered, School } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
+const TESTS_STORAGE_KEY = "exam-hub-tests";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
