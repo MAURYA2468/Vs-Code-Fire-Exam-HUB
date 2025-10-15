@@ -39,6 +39,7 @@ export interface Test {
 export interface Answer {
   questionId: string;
   value: string;
+  pointsAwarded?: number;
 }
 
 export interface Submission {
@@ -47,5 +48,6 @@ export interface Submission {
   studentId: string;
   answers: Answer[];
   submittedAt: string;
-  score?: number; // Calculated for MCQs
+  score?: number; // Auto-calculated for MCQs
+  gradedScore?: number; // Manually calculated score
 }

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, Users, FileText, BarChart2, Eye, ArrowRight } from "lucide-react";
+import { Loader2, Users, FileText, BarChart2, Eye, Edit } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
@@ -17,6 +17,8 @@ const USERS_STORAGE_KEY = "offline-exam-pro-users";
 type EnrichedSubmission = Submission & {
   studentName: string;
   percentage: number;
+  finalScore: number;
+  isGraded: boolean;
 };
 
 export default function TestResults({ testId }: { testId: string }) {
@@ -46,13 +48,17 @@ export default function TestResults({ testId }: { testId: string }) {
 
       const enriched = testSubmissions.map(sub => {
         const student = allUsers.find(u => u.id === sub.studentId);
-        const percentage = totalPoints > 0 && sub.score !== undefined ? (sub.score / totalPoints) * 100 : 0;
+        const finalScore = sub.gradedScore ?? sub.score ?? 0;
+        const percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
+        
         return {
           ...sub,
           studentName: student?.name ?? 'Unknown Student',
           percentage,
+          finalScore,
+          isGraded: sub.gradedScore !== undefined,
         };
-      }).sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      }).sort((a, b) => b.finalScore - a.finalScore);
       
       setSubmissions(enriched);
     }
@@ -69,7 +75,7 @@ export default function TestResults({ testId }: { testId: string }) {
   }
 
   const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
-  const averageScore = submissions.length > 0 ? submissions.reduce((sum, sub) => sum + (sub.score ?? 0), 0) / submissions.length : 0;
+  const averageScore = submissions.length > 0 ? submissions.reduce((sum, sub) => sum + (sub.finalScore), 0) / submissions.length : 0;
   const averagePercentage = totalPoints > 0 ? (averageScore / totalPoints) * 100 : 0;
 
 
@@ -139,15 +145,25 @@ export default function TestResults({ testId }: { testId: string }) {
                     <TableCell>{format(parseISO(sub.submittedAt), "Pp")}</TableCell>
                     <TableCell>
                         <Badge variant={sub.percentage > 75 ? "default" : sub.percentage > 50 ? "secondary" : "destructive"}>
-                            {sub.score !== undefined ? `${sub.score} / ${totalPoints} (${sub.percentage.toFixed(1)}%)` : 'Not Graded'}
+                            {`${sub.finalScore} / ${totalPoints} (${sub.percentage.toFixed(1)}%)`}
                         </Badge>
+                        {!sub.isGraded && test.questions.some(q => q.type !== 'mcq') && (
+                            <Badge variant="outline" className="ml-2">Ungraded</Badge>
+                        )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right space-x-2">
                         <Button asChild variant="outline" size="sm">
                             <Link href={`/teacher/tests/${testId}/submissions/${sub.id}`}>
                                 <Eye className="mr-2 h-4 w-4" /> View
                             </Link>
                         </Button>
+                        {test.questions.some(q => q.type !== 'mcq') &&
+                          <Button asChild size="sm">
+                              <Link href={`/teacher/tests/${testId}/grade/${sub.id}`}>
+                                  <Edit className="mr-2 h-4 w-4" /> Grade
+                              </Link>
+                          </Button>
+                        }
                     </TableCell>
                   </TableRow>
                 ))

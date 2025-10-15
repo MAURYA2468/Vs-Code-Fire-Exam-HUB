@@ -13,6 +13,7 @@ const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
 type EnrichedSubmission = Submission & {
   test: Test | null;
   percentage: number | null;
+  finalScore: number;
 };
 
 export default function StudentResultsPage() {
@@ -32,11 +33,13 @@ export default function StudentResultsPage() {
       const enrichedSubmissions = studentSubmissions.map(submission => {
         const test = allTests.find(t => t.id === submission.testId) ?? null;
         let percentage: number | null = null;
-        if (test && submission.score !== undefined) {
+        const finalScore = submission.gradedScore ?? submission.score ?? 0;
+        
+        if (test) {
           const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
-          percentage = totalPoints > 0 ? (submission.score / totalPoints) * 100 : 0;
+          percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
         }
-        return { ...submission, test, percentage };
+        return { ...submission, test, percentage, finalScore };
       }).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 
       setResults(enrichedSubmissions);
@@ -84,12 +87,15 @@ export default function StudentResultsPage() {
                     </div>
                   </>
                 )}
-                 {result.score !== undefined && result.test && (
+                 {result.test && (
                   <div className="flex items-center text-sm font-semibold text-primary">
                     <Percent className="mr-2 h-4 w-4" />
-                    <span>Score: {result.score} / {result.test.questions.reduce((sum, q) => sum + q.points, 0)} ({result.percentage?.toFixed(1)}%)</span>
+                    <span>Score: {result.finalScore} / {result.test.questions.reduce((sum, q) => sum + q.points, 0)} ({result.percentage?.toFixed(1)}%)</span>
                   </div>
                  )}
+                 {result.gradedScore === undefined && result.test?.questions.some(q => q.type !== 'mcq') &&
+                    <Badge variant="outline">Awaiting manual grade</Badge>
+                 }
               </CardContent>
             </Card>
           ))}
