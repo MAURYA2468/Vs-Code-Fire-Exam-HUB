@@ -3,27 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookUser, School } from 'lucide-react';
 import Logo from '@/components/Logo';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'home-hero');
-  
   return (
     <div className="flex flex-1 items-center justify-center p-4">
-      <div className="container mx-auto grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        <div className="text-center lg:text-left">
-          <div className="mb-8 flex justify-center lg:justify-start">
+      <div className="container mx-auto grid grid-cols-1 items-center gap-12">
+        <div className="text-center">
+          <div className="mb-8 flex justify-center">
             <Logo />
           </div>
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground md:text-6xl">
             Welcome to Exam HUB
           </h1>
-          <p className="mb-10 text-lg text-muted-foreground md:text-xl">
+          <p className="mb-10 text-lg text-muted-foreground md:text-xl max-w-3xl mx-auto">
             Exam HUB is your all-in-one platform for digital examinations. Teachers can effortlessly create, distribute, and grade tests, while students can take them in a secure and intuitive environment. With robust offline capabilities, Exam HUB ensures a smooth testing experience for everyone, anytime, anywhere.
           </p>
 
-          <div className="mx-auto grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none">
+          <div className="mx-auto grid max-w-md grid-cols-1 gap-8 md:max-w-2xl md:grid-cols-2">
             <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10 hover:scale-105">
               <CardHeader>
                 <div className="flex items-center gap-4">
@@ -71,17 +67,6 @@ export default function Home() {
             </Card>
           </div>
         </div>
-        {heroImage && (
-          <div className="relative hidden h-[600px] w-full lg:block">
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              fill
-              className="rounded-2xl object-cover shadow-2xl"
-              data-ai-hint={heroImage.imageHint}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
