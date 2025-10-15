@@ -90,6 +90,16 @@ export default function AppHeader() {
                 <p className="text-xs leading-none text-muted-foreground">
                   {user?.email}
                 </p>
+                {user?.role === 'student' && user.registerNumber && (
+                  <p className="text-xs leading-none text-muted-foreground pt-1">
+                    Reg No: {user.registerNumber}
+                  </p>
+                )}
+                 {user?.role === 'teacher' && user.teacherId && (
+                  <p className="text-xs leading-none text-muted-foreground pt-1">
+                    ID: {user.teacherId}
+                  </p>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
