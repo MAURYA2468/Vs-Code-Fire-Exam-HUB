@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "home-hero",
-      "description": "Students writing an exam in a well-lit hall.",
-      "imageUrl": "https://picsum.photos/seed/exam-hero/800/600",
-      "imageHint": "exam hall"
+      "description": "An open book on a desk.",
+      "imageUrl": "https://picsum.photos/seed/book-hero/800/600",
+      "imageHint": "book"
     },
     {
       "id": "auth-hero",
