@@ -11,7 +11,7 @@ export default function Home() {
         <div className="mb-12 flex justify-center">
           <Logo />
         </div>
-        <h1 className="mb-4 text-4xl font-bold tracking-tight text-white md:text-6xl">
+        <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground md:text-6xl">
           Welcome to OfflineExamPro
         </h1>
         <p className="mb-10 text-lg text-muted-foreground md:text-xl">
@@ -19,12 +19,12 @@ export default function Home() {
         </p>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Card className="border-2 border-primary/30 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/70 hover:shadow-primary/20">
+          <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10">
             <CardHeader>
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <BookUser className="h-8 w-8" />
               </div>
-              <CardTitle className="text-2xl font-semibold text-white">
+              <CardTitle className="text-2xl font-semibold text-foreground">
                 Teacher Portal
               </CardTitle>
             </CardHeader>
@@ -40,12 +40,12 @@ export default function Home() {
             </CardContent>
           </Card>
           
-          <Card className="border-2 border-accent/30 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-accent/70 hover:shadow-accent/20">
+          <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10">
             <CardHeader>
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-accent">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <School className="h-8 w-8" />
               </div>
-              <CardTitle className="text-2xl font-semibold text-white">
+              <CardTitle className="text-2xl font-semibold text-foreground">
                 Student Portal
               </CardTitle>
             </CardHeader>
@@ -53,7 +53,7 @@ export default function Home() {
               <p className="mb-6 text-muted-foreground">
                 Access and complete your assigned tests within the designated time.
               </p>
-              <Button asChild variant="secondary" size="lg" className="w-full bg-accent/80 text-accent-foreground hover:bg-accent">
+              <Button asChild size="lg" className="w-full">
                 <Link href="/login/student">
                   Enter Student Portal <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
