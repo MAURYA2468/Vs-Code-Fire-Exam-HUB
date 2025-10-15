@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,7 @@ export default function StudentDashboard() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button asChild className="w-full" variant="secondary" >
+                    <Button asChild className="w-full">
                         <Link href={`/student/tests/${test.id}`}>
                             Start Test <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
