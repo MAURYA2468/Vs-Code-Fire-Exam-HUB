@@ -1,0 +1,243 @@
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { Test, Submission, Answer } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, AlertTriangle, Clock } from "lucide-react";
+
+const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
+const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
+
+type FormData = {
+  answers: { [questionId: string]: string };
+};
+
+export default function TestTaker({ testId }: { testId: string }) {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { handleSubmit, control, getValues, setValue } = useForm<FormData>({
+    defaultValues: { answers: {} },
+  });
+
+  const [test, setTest] = useState<Test | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [showSubmitWarning, setShowSubmitWarning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slideCount, setSlideCount] = useState(0);
+  
+  const timerRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
+    const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
+    const foundTest = allTests.find(t => t.id === testId);
+
+    if (foundTest) {
+      setTest(foundTest);
+      setTimeLeft(foundTest.duration * 60);
+    }
+    setIsLoading(false);
+  }, [testId]);
+
+  useEffect(() => {
+    if (test && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && test) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      // Auto-submit
+      submitTest(getValues());
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [test, timeLeft]);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    setSlideCount(carouselApi.scrollSnapList().length);
+    setCurrentSlide(carouselApi.selectedScrollSnap());
+    carouselApi.on("select", () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+    });
+  }, [carouselApi]);
+
+  const submitTest = async (data: FormData) => {
+    if (!user || !test || isSubmitting) return;
+    setIsSubmitting(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    const answers: Answer[] = Object.entries(data.answers).map(([questionId, value]) => ({
+      questionId,
+      value,
+    }));
+
+    // Auto-grade MCQs
+    let score = 0;
+    test.questions.forEach(q => {
+      if (q.type === 'mcq') {
+        const studentAnswer = answers.find(a => a.questionId === q.id);
+        if (studentAnswer && studentAnswer.value === q.correctAnswer) {
+          score += q.points;
+        }
+      }
+    });
+
+    const newSubmission: Submission = {
+      id: crypto.randomUUID(),
+      testId: test.id,
+      studentId: user.id,
+      answers,
+      submittedAt: new Date().toISOString(),
+      score,
+    };
+
+    const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
+    const allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
+    allSubmissions.push(newSubmission);
+    localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(allSubmissions));
+
+    toast({
+      title: "Test Submitted!",
+      description: `Your submission for "${test.title}" has been recorded.`,
+    });
+
+    router.push("/student/dashboard");
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+  }
+
+  if (!test) {
+    return <div className="text-center text-destructive">Test not found.</div>;
+  }
+
+  const progressPercentage = slideCount > 0 ? ((currentSlide + 1) / slideCount) * 100 : 0;
+
+  return (
+    <div className="container mx-auto flex flex-col items-center justify-center py-8">
+      <Card className="w-full max-w-4xl bg-card/70 backdrop-blur-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl">{test.title}</CardTitle>
+          <CardDescription>{test.description}</CardDescription>
+          <div className="flex items-center justify-center gap-2 pt-4 font-semibold text-lg text-primary">
+            <Clock className="h-6 w-6" />
+            <span>Time Left: {formatTime(timeLeft)}</span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(submitTest)}>
+            <Carousel setApi={setCarouselApi} className="w-full">
+              <CarouselContent>
+                {test.questions.map((q, index) => (
+                  <CarouselItem key={q.id}>
+                    <div className="p-1">
+                      <Card className="bg-background">
+                        <CardHeader>
+                          <CardTitle>Question {index + 1} <span className="text-sm font-normal text-muted-foreground">({q.points} points)</span></CardTitle>
+                          <CardDescription className="text-base text-foreground pt-2">{q.text}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Controller
+                            name={`answers.${q.id}`}
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => (
+                              <>
+                                {q.type === 'mcq' && q.options && (
+                                  <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
+                                    {q.options.map(option => (
+                                      <div key={option.id} className="flex items-center space-x-2 rounded-md border p-4 transition-colors hover:bg-muted/50 has-[[data-state=checked]]:border-primary">
+                                        <RadioGroupItem value={option.id} id={option.id} />
+                                        <Label htmlFor={option.id} className="flex-1 cursor-pointer">{option.text}</Label>
+                                      </div>
+                                    ))}
+                                  </RadioGroup>
+                                )}
+                                {q.type === 'short-answer' && (
+                                  <Input {...field} placeholder="Your answer..." />
+                                )}
+                                {q.type === 'essay' && (
+                                  <Textarea {...field} placeholder="Your essay..." rows={8} />
+                                )}
+                              </>
+                            )}
+                          />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex" />
+              <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+            
+            <div className="mt-6 flex flex-col items-center gap-4">
+              <div className="w-full max-w-sm">
+                <Progress value={progressPercentage} className="w-full" />
+                <p className="text-center text-sm text-muted-foreground mt-2">
+                  Question {currentSlide + 1} of {slideCount}
+                </p>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          <Button
+            size="lg"
+            variant="destructive"
+            onClick={() => setShowSubmitWarning(true)}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</> : "Finish & Submit Test"}
+          </Button>
+        </CardFooter>
+      </Card>
+      
+      <AlertDialog open={showSubmitWarning} onOpenChange={setShowSubmitWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You cannot change your answers after submitting. Please review your answers before proceeding.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setShowSubmitWarning(false)}>Cancel</Button>
+            <AlertDialogAction asChild>
+                <Button variant="destructive" onClick={handleSubmit(submitTest)} disabled={isSubmitting}>
+                    {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</> : "Yes, Submit Now"}
+                </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
