@@ -11,7 +11,7 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
-import { LogOut, User as UserIcon, LayoutDashboard, FileText, BarChart } from "lucide-react";
+import { LogOut, User as UserIcon, LayoutDashboard, FileText, BarChart, BookCopy } from "lucide-react";
 import Logo from "../Logo";
 import Link from "next/link";
 import { ThemeToggle } from "../ThemeToggle";
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 const teacherNavItems = [
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/teacher/tests', label: 'All Tests', icon: FileText },
+  { href: '/teacher/reports', label: 'Reports', icon: BookCopy },
 ];
 
 const studentNavItems = [
@@ -37,6 +38,9 @@ export default function AppHeader() {
   const isLinkActive = (href: string) => {
     if (href === '/teacher/tests') {
       return pathname.startsWith('/teacher/tests');
+    }
+     if (href === '/teacher/reports') {
+      return pathname.startsWith('/teacher/reports');
     }
     return pathname === href;
   }
