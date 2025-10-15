@@ -86,16 +86,18 @@ export default function TeacherDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card className="bg-card/70">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Tests</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{stats.testCount}</div>
-                 <p className="text-xs text-muted-foreground">Tests created by you</p>
-            </CardContent>
-        </Card>
+        <Link href="/teacher/tests">
+          <Card className="bg-card/70 transition-all hover:scale-105 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Tests</CardTitle>
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-2xl font-bold">{stats.testCount}</div>
+                   <p className="text-xs text-muted-foreground">Tests created by you</p>
+              </CardContent>
+          </Card>
+        </Link>
         <Card className="bg-card/70">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
