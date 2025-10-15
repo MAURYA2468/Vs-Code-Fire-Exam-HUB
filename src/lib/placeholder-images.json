@@ -2,14 +2,14 @@
   "placeholderImages": [
     {
       "id": "home-hero",
-      "description": "An open book on a desk.",
-      "imageUrl": "https://picsum.photos/seed/book-hero/800/600",
-      "imageHint": "book"
+      "description": "A person using a laptop for online learning.",
+      "imageUrl": "https://picsum.photos/seed/online-learning/800/600",
+      "imageHint": "online learning"
     },
     {
       "id": "auth-hero",
       "description": "A focused student taking an online exam on a laptop.",
-      "imageUrl": "https://picsum.photos/seed/auth-hero/800/1000",
+      "imageUrl": "https://picsum.photos/seed/student-exam/800/1000",
       "imageHint": "student exam"
     }
   ]
