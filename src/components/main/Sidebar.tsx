@@ -35,7 +35,9 @@ export default function AppSidebar() {
   return (
     <>
       <SidebarHeader>
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
