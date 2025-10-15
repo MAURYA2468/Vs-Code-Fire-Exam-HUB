@@ -98,26 +98,30 @@ export default function TeacherDashboard() {
               </CardContent>
           </Card>
         </Link>
-        <Card className="bg-card/70">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
-                <BarChart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{stats.submissionCount}</div>
-                <p className="text-xs text-muted-foreground">Across all your tests</p>
-            </CardContent>
-        </Card>
-         <Card className="bg-card/70">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Unique Students</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{stats.studentCount}</div>
-                 <p className="text-xs text-muted-foreground">Have taken your tests</p>
-            </CardContent>
-        </Card>
+        <Link href="/teacher/tests" className="block transition-all hover:scale-105 hover:shadow-lg">
+            <Card className="bg-card/70 h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+                    <BarChart className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{stats.submissionCount}</div>
+                    <p className="text-xs text-muted-foreground">Across all your tests</p>
+                </CardContent>
+            </Card>
+        </Link>
+         <Link href="/teacher/tests" className="block transition-all hover:scale-105 hover:shadow-lg">
+            <Card className="bg-card/70 h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Unique Students</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{stats.studentCount}</div>
+                    <p className="text-xs text-muted-foreground">Have taken your tests</p>
+                </CardContent>
+            </Card>
+        </Link>
       </div>
 
       <Card className="bg-card/70 backdrop-blur-sm">
