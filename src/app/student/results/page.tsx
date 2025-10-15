@@ -1,11 +1,15 @@
+
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
 import { Submission, Test } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Clock, ListOrdered, Percent } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Trophy, Clock, ListOrdered, Percent, ArrowRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
 const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
@@ -69,34 +73,41 @@ export default function StudentResultsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map(result => (
-            <Card key={result.id} className="flex flex-col bg-card/70 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="line-clamp-2">{result.test?.title ?? "Test not found"}</CardTitle>
-                <CardDescription>Submitted on: {format(parseISO(result.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-3">
-                {result.test && (
-                  <>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <ListOrdered className="mr-2 h-4 w-4" />
-                      <span>{result.test.questions.length} questions</span>
+            <Card key={result.id} className="flex flex-col bg-card/70 backdrop-blur-sm transition-shadow hover:shadow-lg">
+                <CardHeader>
+                    <CardTitle className="line-clamp-2">{result.test?.title ?? "Test not found"}</CardTitle>
+                    <CardDescription>Submitted on: {format(parseISO(result.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-3">
+                    {result.test && (
+                    <>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                        <ListOrdered className="mr-2 h-4 w-4" />
+                        <span>{result.test.questions.length} questions</span>
+                        </div>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="mr-2 h-4 w-4" />
+                        <span>{result.test.duration} minutes duration</span>
+                        </div>
+                    </>
+                    )}
+                    {result.test && (
+                    <div className="flex items-center text-sm font-semibold text-primary">
+                        <Percent className="mr-2 h-4 w-4" />
+                        <span>Score: {result.finalScore} / {result.test.questions.reduce((sum, q) => sum + q.points, 0)} ({result.percentage?.toFixed(1)}%)</span>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="mr-2 h-4 w-4" />
-                      <span>{result.test.duration} minutes duration</span>
-                    </div>
-                  </>
-                )}
-                 {result.test && (
-                  <div className="flex items-center text-sm font-semibold text-primary">
-                    <Percent className="mr-2 h-4 w-4" />
-                    <span>Score: {result.finalScore} / {result.test.questions.reduce((sum, q) => sum + q.points, 0)} ({result.percentage?.toFixed(1)}%)</span>
-                  </div>
-                 )}
-                 {result.gradedScore === undefined && result.test?.questions.some(q => q.type !== 'mcq') &&
-                    <Badge variant="outline">Awaiting manual grade</Badge>
-                 }
-              </CardContent>
+                    )}
+                    {result.gradedScore === undefined && result.test?.questions.some(q => q.type !== 'mcq') &&
+                        <Badge variant="outline">Awaiting manual grade</Badge>
+                    }
+                </CardContent>
+                <CardFooter>
+                    <Button asChild className="w-full">
+                        <Link href={`/student/results/${result.id}`}>
+                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </CardFooter>
             </Card>
           ))}
         </div>
