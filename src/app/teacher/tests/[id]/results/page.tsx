@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { Loader2, Users, FileText, BarChart2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
 const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
@@ -21,17 +22,23 @@ export default function TestResultsPage({ params }: { params: { id: string } }) 
   const [test, setTest] = useState<Test | null>(null);
   const [submissions, setSubmissions] = useState<EnrichedSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+  const testId = pathname.split('/').pop();
 
   useEffect(() => {
+    if (!testId) {
+        setIsLoading(false);
+        return;
+    };
     const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
     const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
-    const foundTest = allTests.find(t => t.id === params.id);
+    const foundTest = allTests.find(t => t.id === testId);
     setTest(foundTest || null);
 
     if (foundTest) {
       const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
       const allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
-      const testSubmissions = allSubmissions.filter(s => s.testId === params.id);
+      const testSubmissions = allSubmissions.filter(s => s.testId === testId);
       
       const allUsersJson = localStorage.getItem(USERS_STORAGE_KEY);
       const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
@@ -52,7 +59,7 @@ export default function TestResultsPage({ params }: { params: { id: string } }) 
     }
     
     setIsLoading(false);
-  }, [params.id]);
+  }, [testId]);
 
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
