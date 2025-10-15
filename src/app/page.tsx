@@ -20,7 +20,7 @@ export default function Home() {
             Welcome to Exam HUB
           </h1>
           <p className="mb-10 text-lg text-muted-foreground md:text-xl">
-            The seamless solution for creating, managing, and taking exams offline.
+            Exam HUB is your all-in-one platform for digital examinations. Teachers can effortlessly create, distribute, and grade tests, while students can take them in a secure and intuitive environment. With robust offline capabilities, Exam HUB ensures a smooth testing experience for everyone, anytime, anywhere.
           </p>
 
           <div className="mx-auto grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none">
