@@ -24,7 +24,7 @@ export default function Home() {
           </p>
 
           <div className="mx-auto grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none">
-            <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10">
+            <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10 hover:scale-105">
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -47,7 +47,7 @@ export default function Home() {
               </CardContent>
             </Card>
             
-            <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10">
+            <Card className="border-2 border-primary/10 bg-card/50 shadow-lg backdrop-blur-sm transition-all hover:border-primary/30 hover:shadow-primary/10 hover:scale-105">
               <CardHeader>
                  <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">

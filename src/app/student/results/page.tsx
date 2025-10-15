@@ -73,7 +73,7 @@ export default function StudentResultsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map(result => (
-            <Card key={result.id} className="flex flex-col bg-card/70 backdrop-blur-sm transition-shadow hover:shadow-lg">
+            <Card key={result.id} className="flex flex-col bg-card/70 backdrop-blur-sm transition-shadow hover:shadow-lg hover:scale-105">
                 <CardHeader>
                     <CardTitle className="line-clamp-2">{result.test?.title ?? "Test not found"}</CardTitle>
                     <CardDescription>Submitted on: {format(parseISO(result.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</CardDescription>

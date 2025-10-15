@@ -9,6 +9,7 @@ import { format, parseISO } from "date-fns";
 import { Loader2, Users, FileText, BarChart2, Eye, Edit } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -139,7 +140,11 @@ export default function TestResults({ testId }: { testId: string }) {
             <TableBody>
               {submissions.length > 0 ? (
                 submissions.map((sub, index) => (
-                  <TableRow key={sub.id}>
+                  <TableRow 
+                    key={sub.id} 
+                    className="animate-table-row-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>{sub.studentName}</TableCell>
                     <TableCell>{format(parseISO(sub.submittedAt), "Pp")}</TableCell>
