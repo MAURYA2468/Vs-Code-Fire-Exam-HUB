@@ -27,13 +27,25 @@ interface AuthFormProps {
   userRole: UserRole;
 }
 
-const formSchema = z.object({
-  name: z.string().min(1, 'Name is required').optional(),
+const baseSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  teacherId: z.string().min(1, 'Teacher ID is required').optional(),
-  registerNumber: z.string().min(1, 'Register Number is required').optional(),
 });
+
+const loginSchema = baseSchema;
+
+const signupSchema = baseSchema.extend({
+    name: z.string().min(1, 'Name is required'),
+    teacherId: z.string().optional(),
+    registerNumber: z.string().optional(),
+}).superRefine((data, ctx) => {
+    if (data.teacherId === undefined && data.registerNumber === undefined) {
+        // This case should ideally not happen if userRole is always student or teacher
+    } else if (data.teacherId !== undefined && data.registerNumber !== undefined) {
+        // This case should also not happen.
+    }
+});
+
 
 export function AuthForm({ mode, userRole }: AuthFormProps) {
   const { login, signup } = useAuth();
@@ -45,6 +57,24 @@ export function AuthForm({ mode, userRole }: AuthFormProps) {
   const userType = userRole.charAt(0).toUpperCase() + userRole.slice(1);
   const oppositeMode = mode === "login" ? "signup" : "login";
   const oppositeText = mode === "login" ? "Don't have an account?" : "Already have an account?";
+
+  const formSchema = mode === 'login' ? loginSchema : signupSchema.superRefine((data, ctx) => {
+      if (userRole === 'teacher' && !data.teacherId) {
+          ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Teacher ID is required.",
+              path: ["teacherId"],
+          });
+      }
+      if (userRole === 'student' && !data.registerNumber) {
+          ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Register Number is required.",
+              path: ["registerNumber"],
+          });
+      }
+  });
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,27 +97,15 @@ export function AuthForm({ mode, userRole }: AuthFormProps) {
           throw new Error("Invalid email or password. Please try again.");
         }
       } else {
-        if (!values.name) {
-          form.setError("name", { message: "Name is required for signup." });
-          throw new Error("Validation failed");
-        }
+        const { name, email, password, teacherId, registerNumber } = values as z.infer<typeof signupSchema>;
         const details: { teacherId?: string; registerNumber?: string } = {};
         if (userRole === "teacher") {
-          if (!values.teacherId) {
-            form.setError("teacherId", { message: "Teacher ID is required." });
-            throw new Error("Validation failed");
-          }
-          details.teacherId = values.teacherId;
+          details.teacherId = teacherId;
         }
         if (userRole === "student") {
-          if (!values.registerNumber) {
-            form.setError("registerNumber", { message: "Register Number is required." });
-            throw new Error("Validation failed");
-          }
-          details.registerNumber = values.registerNumber;
+          details.registerNumber = registerNumber;
         }
-
-        await signup(values.name, values.email, values.password, userRole, details);
+        await signup(name, email, password, userRole, details);
       }
       router.push(`/${userRole}/dashboard`);
     } catch (err: any) {
