@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, Users, FileText, BarChart2 } from "lucide-react";
+import { Loader2, Users, FileText, BarChart2, Eye, ArrowRight } from "lucide-react";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
 const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
@@ -121,10 +123,11 @@ export default function TestResults({ testId }: { testId: string }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Rank</TableHead>
+                <TableHead className="w-[80px]">Rank</TableHead>
                 <TableHead>Student Name</TableHead>
                 <TableHead>Submitted At</TableHead>
-                <TableHead className="text-right">Score</TableHead>
+                <TableHead>Score</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -134,16 +137,23 @@ export default function TestResults({ testId }: { testId: string }) {
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>{sub.studentName}</TableCell>
                     <TableCell>{format(parseISO(sub.submittedAt), "Pp")}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                         <Badge variant={sub.percentage > 75 ? "default" : sub.percentage > 50 ? "secondary" : "destructive"}>
                             {sub.score !== undefined ? `${sub.score} / ${totalPoints} (${sub.percentage.toFixed(1)}%)` : 'Not Graded'}
                         </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={`/teacher/tests/${testId}/submissions/${sub.id}`}>
+                                <Eye className="mr-2 h-4 w-4" /> View
+                            </Link>
+                        </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     No submissions yet.
                   </TableCell>
                 </TableRow>
