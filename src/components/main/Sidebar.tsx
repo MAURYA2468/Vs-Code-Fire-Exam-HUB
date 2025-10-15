@@ -13,15 +13,17 @@ import Logo from '../Logo';
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, PlusCircle, BarChart, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, BarChart, Home, LogOut } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const teacherNavItems = [
+  { href: '/', label: 'Home', icon: Home },
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/teacher/tests/create', label: 'Create Test', icon: PlusCircle },
 ];
 
 const studentNavItems = [
+  { href: '/', label: 'Home', icon: Home },
   { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/student/results', label: 'My Results', icon: BarChart },
 ];
