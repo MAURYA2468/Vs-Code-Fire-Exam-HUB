@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Submission, Test, User } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,6 +11,8 @@ import { Loader2, Users, FileText, BarChart2, Eye, Edit } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "../ui/label";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -22,10 +25,15 @@ type EnrichedSubmission = Submission & {
   isGraded: boolean;
 };
 
+type SortKey = "studentName" | "submittedAt" | "finalScore";
+type SortDirection = "asc" | "desc";
+
 export default function TestResults({ testId }: { testId: string }) {
   const [test, setTest] = useState<Test | null>(null);
   const [submissions, setSubmissions] = useState<EnrichedSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortKey, setSortKey] = useState<SortKey>("finalScore");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   useEffect(() => {
     if (!testId) {
@@ -59,13 +67,34 @@ export default function TestResults({ testId }: { testId: string }) {
           finalScore,
           isGraded: sub.gradedScore !== undefined,
         };
-      }).sort((a, b) => b.finalScore - a.finalScore);
+      });
       
       setSubmissions(enriched);
     }
     
     setIsLoading(false);
   }, [testId]);
+  
+  const sortedSubmissions = useMemo(() => {
+    return [...submissions].sort((a, b) => {
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
+
+      if (sortKey === 'submittedAt') {
+        return sortDirection === 'asc' 
+          ? new Date(aValue).getTime() - new Date(bValue).getTime() 
+          : new Date(bValue).getTime() - new Date(aValue).getTime();
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [submissions, sortKey, sortDirection]);
 
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
@@ -121,10 +150,41 @@ export default function TestResults({ testId }: { testId: string }) {
 
       <Card className="bg-card/70">
         <CardHeader>
-          <CardTitle>Student Leaderboard</CardTitle>
-          <CardDescription>
-            Results are ranked by score. MCQs are auto-graded. Short answer and essay questions require manual review.
-          </CardDescription>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle>Student Leaderboard</CardTitle>
+              <CardDescription>
+                Results are ranked by score. MCQs are auto-graded. Short answer and essay questions require manual review.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="sort-by">Sort By</Label>
+                <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
+                  <SelectTrigger id="sort-by" className="w-[150px]">
+                    <SelectValue placeholder="Sort by..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="finalScore">Score</SelectItem>
+                    <SelectItem value="studentName">Student Name</SelectItem>
+                    <SelectItem value="submittedAt">Date</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                 <Label htmlFor="sort-dir">Order</Label>
+                <Select value={sortDirection} onValueChange={(value) => setSortDirection(value as SortDirection)}>
+                   <SelectTrigger id="sort-dir" className="w-[120px]">
+                    <SelectValue placeholder="Order..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">Descending</SelectItem>
+                    <SelectItem value="asc">Ascending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -138,8 +198,8 @@ export default function TestResults({ testId }: { testId: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submissions.length > 0 ? (
-                submissions.map((sub, index) => (
+              {sortedSubmissions.length > 0 ? (
+                sortedSubmissions.map((sub, index) => (
                   <TableRow 
                     key={sub.id} 
                     className="animate-table-row-fade-in"
