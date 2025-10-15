@@ -6,9 +6,9 @@ export function AnimatedBackground() {
        <div 
         className="absolute inset-0 h-full w-full"
         style={{
-          background: 'linear-gradient(-45deg, hsl(var(--background)), hsl(var(--secondary)), hsl(var(--muted)), hsl(var(--primary)))',
+          background: 'linear-gradient(-45deg, hsl(var(--background)), hsl(var(--secondary)), hsl(var(--primary)))',
           backgroundSize: '400% 400%',
-          animation: 'gradient-animation 25s ease infinite',
+          animation: 'gradient-animation 35s ease infinite',
         }}
       />
     </div>
