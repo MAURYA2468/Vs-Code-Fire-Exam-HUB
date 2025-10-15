@@ -35,10 +35,8 @@ export default function AppSidebar() {
   return (
     <>
       <SidebarHeader>
-        <Link href="/" legacyBehavior>
-          <a className="flex items-center gap-2">
-            <Logo />
-          </a>
+        <Link href="/" className="flex items-center gap-2">
+          <Logo />
         </Link>
       </SidebarHeader>
       <SidebarContent>
