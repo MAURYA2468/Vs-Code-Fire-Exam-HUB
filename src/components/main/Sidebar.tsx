@@ -13,11 +13,12 @@ import Logo from '../Logo';
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, PlusCircle, BarChart, LogOut } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, BarChart, LogOut, FileText } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const teacherNavItems = [
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/teacher/tests', label: 'Tests', icon: FileText },
   { href: '/teacher/tests/create', label: 'Create Test', icon: PlusCircle },
 ];
 
@@ -42,7 +43,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={pathname.startsWith(item.href) && (item.href !== '/teacher/dashboard' || pathname === '/teacher/dashboard')}
                 className="w-full"
               >
                 <Link href={item.href}>
