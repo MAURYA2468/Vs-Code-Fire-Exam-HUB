@@ -33,8 +33,10 @@ export default function AppHeader() {
       <div className="flex items-center gap-4">
         <SidebarTrigger className="md:hidden" />
         <div className="hidden md:block">
-            <Link href="/">
+            <Link href="/" legacyBehavior>
+              <a className="flex items-center gap-2">
                 <Logo />
+              </a>
             </Link>
         </div>
       </div>
