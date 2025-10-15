@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Test } from "@/lib/types";
-import { PlusCircle, Clock, ListOrdered, ArrowRight } from "lucide-react";
+import { PlusCircle, Clock, ListOrdered, ArrowRight, Edit } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { format, parseISO } from 'date-fns';
@@ -68,11 +68,18 @@ export default function TeacherDashboard() {
                 <p className="mb-4 self-start text-xs text-muted-foreground">
                   Created on: {format(parseISO(test.createdAt), "MMMM d, yyyy")}
                 </p>
-                <Button asChild className="w-full">
-                  <Link href={`/teacher/tests/${test.id}/results`}>
-                    View Results <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                <div className="flex w-full gap-2">
+                  <Button asChild className="flex-1" variant="outline">
+                    <Link href={`/teacher/tests/${test.id}/edit`}>
+                      <Edit className="mr-2 h-4 w-4" /> Edit
+                    </Link>
+                  </Button>
+                  <Button asChild className="flex-1">
+                    <Link href={`/teacher/tests/${test.id}/results`}>
+                      View Results <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           ))}

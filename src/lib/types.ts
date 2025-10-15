@@ -29,7 +29,7 @@ export interface Question {
 export interface Test {
   id:string;
   title: string;
-  description: string;
+  description?: string;
   duration: number; // in minutes
   teacherId: string;
   questions: Question[];

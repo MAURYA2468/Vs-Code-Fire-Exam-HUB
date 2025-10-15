@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Test, Question } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 const optionSchema = z.object({
   id: z.string(),
@@ -41,10 +42,15 @@ type TestFormData = z.infer<typeof testSchema>;
 
 const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
 
-export default function TestBuilder() {
+interface TestBuilderProps {
+    existingTest?: Test | null;
+}
+
+export default function TestBuilder({ existingTest }: TestBuilderProps) {
     const { user } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
+    const isEditMode = !!existingTest;
 
     const form = useForm<TestFormData>({
         resolver: zodResolver(testSchema),
@@ -56,6 +62,12 @@ export default function TestBuilder() {
         },
     });
 
+    useEffect(() => {
+        if (existingTest) {
+            form.reset(existingTest);
+        }
+    }, [existingTest, form]);
+
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: "questions",
@@ -64,23 +76,35 @@ export default function TestBuilder() {
     const onSubmit = (data: TestFormData) => {
         if (!user) return;
 
-        const newTest: Test = {
-            id: crypto.randomUUID(),
-            teacherId: user.id,
-            createdAt: new Date().toISOString(),
-            ...data,
-        };
-
         const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
-        const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
-        allTests.push(newTest);
+        let allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
+
+        if (isEditMode && existingTest) {
+            // Update existing test
+            const testIndex = allTests.findIndex(t => t.id === existingTest.id);
+            if (testIndex !== -1) {
+                allTests[testIndex] = { ...allTests[testIndex], ...data };
+                toast({
+                    title: "Test Updated!",
+                    description: `"${data.title}" has been saved successfully.`,
+                });
+            }
+        } else {
+            // Create new test
+            const newTest: Test = {
+                id: crypto.randomUUID(),
+                teacherId: user.id,
+                createdAt: new Date().toISOString(),
+                ...data,
+            };
+            allTests.push(newTest);
+            toast({
+                title: "Test Created!",
+                description: `"${data.title}" has been saved successfully.`,
+            });
+        }
+
         localStorage.setItem(TESTS_STORAGE_KEY, JSON.stringify(allTests));
-
-        toast({
-            title: "Test Created!",
-            description: `"${data.title}" has been saved successfully.`,
-        });
-
         router.push("/teacher/dashboard");
     };
 
@@ -127,7 +151,7 @@ export default function TestBuilder() {
                     {fields.map((field, index) => (
                         <QuestionBuilder key={field.id} form={form} index={index} removeQuestion={remove} />
                     ))}
-                     {form.formState.errors.questions && <p className="text-sm font-medium text-destructive">{form.formState.errors.questions.message}</p>}
+                     {form.formState.errors.questions && !form.formState.errors.questions.root && <p className="text-sm font-medium text-destructive">{form.formState.errors.questions.message}</p>}
 
                     <div className="flex flex-wrap gap-2 rounded-lg border border-dashed p-4 justify-center">
                         <Button type="button" variant="outline" onClick={() => addQuestion("mcq")}>
@@ -144,7 +168,7 @@ export default function TestBuilder() {
 
                 <div className="flex justify-end">
                     <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? "Saving..." : "Save Test"}
+                        {form.formState.isSubmitting ? "Saving..." : isEditMode ? "Save Changes" : "Save Test"}
                     </Button>
                 </div>
             </form>
