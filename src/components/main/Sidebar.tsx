@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -18,7 +19,7 @@ import { Button } from '../ui/button';
 
 const teacherNavItems = [
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/teacher/tests', label: 'Tests', icon: FileText },
+  { href: '/teacher/tests', label: 'All Tests', icon: FileText },
 ];
 
 const studentNavItems = [
