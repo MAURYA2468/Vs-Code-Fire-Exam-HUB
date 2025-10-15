@@ -11,14 +11,35 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon, LayoutDashboard, FileText, BarChart } from "lucide-react";
 import Logo from "../Logo";
 import Link from "next/link";
-import { SidebarTrigger } from "../ui/sidebar";
 import { ThemeToggle } from "../ThemeToggle";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const teacherNavItems = [
+  { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/teacher/tests', label: 'All Tests', icon: FileText },
+];
+
+const studentNavItems = [
+  { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/student/results', label: 'My Results', icon: BarChart },
+];
+
 
 export default function AppHeader() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
+  const navItems = user?.role === 'teacher' ? teacherNavItems : studentNavItems;
+
+  const isLinkActive = (href: string) => {
+    if (href === '/teacher/tests') {
+      return pathname.startsWith('/teacher/tests');
+    }
+    return pathname === href;
+  }
 
   const getInitials = (name: string) => {
     return name
@@ -30,13 +51,25 @@ export default function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
-      <div className="flex items-center gap-4">
-        <SidebarTrigger className="md:hidden" />
-        <div className="hidden md:block">
-            <Link href="/" className="flex items-center gap-2">
-                <Logo />
-            </Link>
-        </div>
+      <div className="flex items-center gap-6">
+        <Link href="/" className="flex items-center gap-2">
+            <Logo />
+        </Link>
+        <nav className="hidden items-center gap-4 md:flex">
+          {navItems.map((item) => (
+              <Button 
+                key={item.href}
+                asChild 
+                variant="ghost"
+                className={cn("text-muted-foreground hover:text-foreground", isLinkActive(item.href) && "text-foreground")}
+              >
+                <Link href={item.href}>
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.label}
+                </Link>
+              </Button>
+          ))}
+        </nav>
       </div>
       
       <div className="flex items-center gap-4">
@@ -60,6 +93,18 @@ export default function AppHeader() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {/* Mobile Nav */}
+            <div className="md:hidden">
+              {navItems.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href}>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+              ))}
+               <DropdownMenuSeparator />
+            </div>
             <DropdownMenuItem onClick={logout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
