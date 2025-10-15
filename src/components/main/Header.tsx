@@ -36,13 +36,10 @@ export default function AppHeader() {
   const navItems = user?.role === 'teacher' ? teacherNavItems : studentNavItems;
 
   const isLinkActive = (href: string) => {
-    if (href === '/teacher/tests') {
-      return pathname.startsWith('/teacher/tests');
+    if (href.endsWith('/dashboard')) {
+        return pathname === href;
     }
-     if (href === '/teacher/reports') {
-      return pathname.startsWith('/teacher/reports');
-    }
-    return pathname === href;
+    return pathname.startsWith(href);
   }
 
   const getInitials = (name: string) => {
