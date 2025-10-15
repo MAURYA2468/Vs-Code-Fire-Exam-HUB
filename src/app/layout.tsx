@@ -36,7 +36,7 @@ export default function RootLayout({
           <AuthProvider>
             <AnimatedBackground />
             <div className="relative z-10 flex min-h-screen flex-col">
-              {children}
+              <main className="flex-1 bg-background/80">{children}</main>
             </div>
             <Footer />
             <Toaster />
