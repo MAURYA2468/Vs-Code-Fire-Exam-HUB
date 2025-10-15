@@ -16,6 +16,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, AlertTriangle, Clock } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const TESTS_STORAGE_KEY = "offline-exam-pro-tests";
 const SUBMISSIONS_STORAGE_KEY = "offline-exam-pro-submissions";
@@ -138,6 +139,12 @@ export default function TestTaker({ testId }: { testId: string }) {
   }
 
   const progressPercentage = slideCount > 0 ? ((currentSlide + 1) / slideCount) * 100 : 0;
+  
+  const handleQuestionJump = (questionIndex: string) => {
+    if (carouselApi) {
+      carouselApi.scrollTo(parseInt(questionIndex, 10));
+    }
+  };
 
   return (
     <div className="container mx-auto flex flex-col items-center justify-center py-8">
@@ -194,8 +201,8 @@ export default function TestTaker({ testId }: { testId: string }) {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden sm:flex" />
-              <CarouselNext className="hidden sm:flex" />
+              <CarouselPrevious className="flex" />
+              <CarouselNext className="flex" />
             </Carousel>
             
             <div className="mt-6 flex flex-col items-center gap-4">
@@ -204,6 +211,21 @@ export default function TestTaker({ testId }: { testId: string }) {
                 <p className="text-center text-sm text-muted-foreground mt-2">
                   Question {currentSlide + 1} of {slideCount}
                 </p>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <Select onValueChange={handleQuestionJump} value={currentSlide.toString()}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Jump to question..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {test.questions.map((_, index) => (
+                      <SelectItem key={index} value={index.toString()}>
+                        Question {index + 1}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </form>
