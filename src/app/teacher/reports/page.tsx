@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -9,13 +10,20 @@ import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
 const USERS_STORAGE_KEY = "exam-hub-users";
 
-type StudentReportItem = Pick<User, 'id' | 'name' | 'registerNumber'>;
-type SortKey = 'name' | 'registerNumber';
+type StudentReportItem = {
+  id: string;
+  name: string;
+  registerNumber: string;
+  testsTaken: number;
+  averageScore: number;
+};
+type SortKey = 'name' | 'registerNumber' | 'testsTaken' | 'averageScore';
 type SortDirection = 'asc' | 'desc';
 
 export default function ReportsPage() {
@@ -37,23 +45,53 @@ export default function ReportsPage() {
       const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
       const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
       const teacherTests = allTests.filter(t => t.teacherId === user.id);
-      const teacherTestIds = new Set(teacherTests.map(t => t.id));
+      const teacherTestsMap = new Map(teacherTests.map(t => [t.id, t]));
 
       // Fetch all submissions
       const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
       const allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
+      const teacherSubmissions = allSubmissions.filter(s => teacherTestsMap.has(s.testId));
 
-      // Find unique student IDs who submitted to this teacher's tests
-      const studentIdsWhoSubmitted = new Set(
-        allSubmissions
-          .filter(s => teacherTestIds.has(s.testId))
-          .map(s => s.studentId)
-      );
+      const reportMap = new Map<string, StudentReportItem>();
 
-      // Filter the student list to only those who have submitted
-      const reportingStudents = studentUsers
-        .filter(student => studentIdsWhoSubmitted.has(student.id))
-        .map(({ id, name, registerNumber }) => ({ id, name, registerNumber: registerNumber || 'N/A' }));
+      for (const student of studentUsers) {
+        reportMap.set(student.id, {
+          id: student.id,
+          name: student.name,
+          registerNumber: student.registerNumber || 'N/A',
+          testsTaken: 0,
+          averageScore: 0,
+        });
+      }
+
+      const scoreTotals: { [studentId: string]: { totalPercentage: number; count: number } } = {};
+
+      for (const submission of teacherSubmissions) {
+        if (!scoreTotals[submission.studentId]) {
+          scoreTotals[submission.studentId] = { totalPercentage: 0, count: 0 };
+        }
+
+        const test = teacherTestsMap.get(submission.testId);
+        if (test) {
+          const finalScore = submission.gradedScore ?? submission.score ?? 0;
+          const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
+          const percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
+          
+          scoreTotals[submission.studentId].totalPercentage += percentage;
+          scoreTotals[submission.studentId].count += 1;
+        }
+      }
+
+      Object.keys(scoreTotals).forEach(studentId => {
+        const studentReport = reportMap.get(studentId);
+        if (studentReport) {
+          const { totalPercentage, count } = scoreTotals[studentId];
+          studentReport.testsTaken = count;
+          studentReport.averageScore = totalPercentage / count;
+        }
+      });
+      
+      const reportingStudents = Array.from(reportMap.values()).filter(s => s.testsTaken > 0);
 
       setStudents(reportingStudents);
       setIsLoading(false);
@@ -112,6 +150,8 @@ export default function ReportsPage() {
                     <SelectContent>
                       <SelectItem value="name">Student Name</SelectItem>
                       <SelectItem value="registerNumber">Register Number</SelectItem>
+                      <SelectItem value="testsTaken">Tests Taken</SelectItem>
+                      <SelectItem value="averageScore">Average Score</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -142,6 +182,8 @@ export default function ReportsPage() {
                 <TableRow>
                   <TableHead>Register Number</TableHead>
                   <TableHead>Student Name</TableHead>
+                  <TableHead className="text-center">Tests Taken</TableHead>
+                  <TableHead className="text-center">Average Score</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -150,11 +192,17 @@ export default function ReportsPage() {
                     <TableRow key={student.id}>
                       <TableCell className="font-mono">{student.registerNumber}</TableCell>
                       <TableCell className="font-medium">{student.name}</TableCell>
+                      <TableCell className="text-center">{student.testsTaken}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant={student.averageScore > 75 ? "default" : student.averageScore > 50 ? "secondary" : "destructive"}>
+                            {student.averageScore.toFixed(1)}%
+                        </Badge>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={2} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                       {students.length === 0 ? "No students have taken your tests yet." : "No students found."}
                     </TableCell>
                   </TableRow>
