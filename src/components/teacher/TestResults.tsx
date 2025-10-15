@@ -25,7 +25,7 @@ type EnrichedSubmission = Submission & {
   isGraded: boolean;
 };
 
-type SortKey = "studentName" | "submittedAt" | "finalScore";
+type SortKey = "studentName" | "submittedAt" | "finalScore" | "isGraded";
 type SortDirection = "asc" | "desc";
 
 export default function TestResults({ testId }: { testId: string }) {
@@ -77,13 +77,22 @@ export default function TestResults({ testId }: { testId: string }) {
   
   const sortedSubmissions = useMemo(() => {
     return [...submissions].sort((a, b) => {
+      if (sortKey === 'isGraded') {
+          // False (ungraded) should come before true (graded)
+          if (a.isGraded === b.isGraded) return 0;
+          if (sortDirection === 'asc') {
+            return a.isGraded ? 1 : -1;
+          }
+          return a.isGraded ? -1 : 1;
+      }
+      
       const aValue = a[sortKey];
       const bValue = b[sortKey];
 
       if (sortKey === 'submittedAt') {
         return sortDirection === 'asc' 
-          ? new Date(aValue).getTime() - new Date(bValue).getTime() 
-          : new Date(bValue).getTime() - new Date(aValue).getTime();
+          ? new Date(aValue as string).getTime() - new Date(bValue as string).getTime() 
+          : new Date(bValue as string).getTime() - new Date(aValue as string).getTime();
       }
 
       if (aValue < bValue) {
@@ -107,6 +116,7 @@ export default function TestResults({ testId }: { testId: string }) {
   const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
   const averageScore = submissions.length > 0 ? submissions.reduce((sum, sub) => sum + (sub.finalScore), 0) / submissions.length : 0;
   const averagePercentage = totalPoints > 0 ? (averageScore / totalPoints) * 100 : 0;
+  const needsManualGrading = test.questions.some(q => q.type !== 'mcq');
 
 
   return (
@@ -168,6 +178,7 @@ export default function TestResults({ testId }: { testId: string }) {
                     <SelectItem value="finalScore">Score</SelectItem>
                     <SelectItem value="studentName">Student Name</SelectItem>
                     <SelectItem value="submittedAt">Date</SelectItem>
+                    <SelectItem value="isGraded">Status</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -194,6 +205,7 @@ export default function TestResults({ testId }: { testId: string }) {
                 <TableHead>Student Name</TableHead>
                 <TableHead>Submitted At</TableHead>
                 <TableHead>Score</TableHead>
+                {needsManualGrading && <TableHead>Status</TableHead>}
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -205,24 +217,30 @@ export default function TestResults({ testId }: { testId: string }) {
                     className="animate-table-row-fade-in"
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
-                    <TableCell className="font-medium">{index + 1}</TableCell>
+                    <TableCell className="font-medium">{sortKey === "finalScore" && sortDirection === "desc" ? index + 1 : "-"}</TableCell>
                     <TableCell>{sub.studentName}</TableCell>
                     <TableCell>{format(parseISO(sub.submittedAt), "Pp")}</TableCell>
                     <TableCell>
                         <Badge variant={sub.percentage > 75 ? "default" : sub.percentage > 50 ? "secondary" : "destructive"}>
                             {`${sub.finalScore} / ${totalPoints} (${sub.percentage.toFixed(1)}%)`}
                         </Badge>
-                        {!sub.isGraded && test.questions.some(q => q.type !== 'mcq') && (
-                            <Badge variant="outline" className="ml-2">Ungraded</Badge>
-                        )}
                     </TableCell>
+                    {needsManualGrading &&
+                      <TableCell>
+                          {!sub.isGraded ? (
+                            <Badge variant="outline">Ungraded</Badge>
+                          ) : (
+                            <Badge variant="secondary">Graded</Badge>
+                          )}
+                      </TableCell>
+                    }
                     <TableCell className="text-right space-x-2">
                         <Button asChild variant="outline" size="sm">
                             <Link href={`/teacher/tests/${testId}/submissions/${sub.id}`}>
                                 <Eye className="mr-2 h-4 w-4" /> View
                             </Link>
                         </Button>
-                        {test.questions.some(q => q.type !== 'mcq') &&
+                        {needsManualGrading &&
                           <Button asChild size="sm">
                               <Link href={`/teacher/tests/${testId}/grade/${sub.id}`}>
                                   <Edit className="mr-2 h-4 w-4" /> Grade
@@ -234,7 +252,7 @@ export default function TestResults({ testId }: { testId: string }) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={needsManualGrading ? 6 : 5} className="h-24 text-center">
                     No submissions yet.
                   </TableCell>
                 </TableRow>
