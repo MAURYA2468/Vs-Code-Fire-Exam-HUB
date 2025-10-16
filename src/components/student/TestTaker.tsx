@@ -463,8 +463,6 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="flex" />
-                <CarouselNext className="flex" />
               </Carousel>
             </form>
           </CardContent>
