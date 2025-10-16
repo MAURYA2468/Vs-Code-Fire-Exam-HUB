@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -28,6 +29,7 @@ type SortDirection = 'asc' | 'desc';
 
 export default function ReportsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [students, setStudents] = useState<StudentReportItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -125,6 +127,10 @@ export default function ReportsPage() {
       });
   }, [students, searchTerm, sortKey, sortDirection]);
 
+  const handleRowClick = (studentId: string) => {
+    router.push(`/teacher/reports/${studentId}`);
+  };
+
   return (
     <div className="container mx-auto">
       <div className="mb-8">
@@ -195,7 +201,7 @@ export default function ReportsPage() {
               <TableBody>
                 {sortedAndFilteredStudents.length > 0 ? (
                   sortedAndFilteredStudents.map((student) => (
-                    <TableRow key={student.id}>
+                    <TableRow key={student.id} onClick={() => handleRowClick(student.id)} className="cursor-pointer">
                       <TableCell className="font-mono">{student.registerNumber}</TableCell>
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell className="text-center">{student.testsTaken}</TableCell>
