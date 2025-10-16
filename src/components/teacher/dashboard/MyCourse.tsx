@@ -1,16 +1,79 @@
+
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import Image from "next/image"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useState } from "react";
+import { Test, Submission, User } from "@/lib/types";
+import { Book } from "lucide-react";
+
+const TESTS_STORAGE_KEY = "exam-hub-tests";
+const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
+const USERS_STORAGE_KEY = "exam-hub-users";
 
 export default function MyCourse() {
+    const { user } = useAuth();
+    const [latestTest, setLatestTest] = useState<Test | null>(null);
+    const [progress, setProgress] = useState(0);
+    const [enrolledStudents, setEnrolledStudents] = useState<User[]>([]);
+    const [totalStudentCount, setTotalStudentCount] = useState(0);
+
     const courseImage = PlaceHolderImages.find(p => p.id === "course-thumbnail");
-    const avatars = [
-        PlaceHolderImages.find(p => p.id === "liam-johnson"),
-        PlaceHolderImages.find(p => p.id === "olivia-smith"),
-        PlaceHolderImages.find(p => p.id === "noah-williams"),
-    ]
+    
+    useEffect(() => {
+        if(user) {
+            const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
+            const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
+            const teacherTests = allTests.filter(t => t.teacherId === user.id)
+                .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+            if (teacherTests.length === 0) {
+                setLatestTest(null);
+                return;
+            }
+
+            const latest = teacherTests[0];
+            setLatestTest(latest);
+
+            const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
+            const allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
+            const submissionsForTest = allSubmissions.filter(s => s.testId === latest.id);
+            const enrolledStudentIds = new Set(submissionsForTest.map(s => s.studentId));
+
+            const allUsersJson = localStorage.getItem(USERS_STORAGE_KEY);
+            const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
+            const students = allUsers.filter(u => u.role === 'student');
+            setTotalStudentCount(students.length);
+            
+            const enrolled = students.filter(s => enrolledStudentIds.has(s.id));
+            setEnrolledStudents(enrolled);
+
+            if (students.length > 0) {
+                setProgress((enrolled.length / students.length) * 100);
+            } else {
+                setProgress(0);
+            }
+        }
+    }, [user]);
+
+    if (!latestTest) {
+        return (
+             <Card className="bg-card/70 backdrop-blur-sm overflow-hidden">
+                <CardContent className="p-6 text-center flex flex-col justify-center items-center h-full">
+                     <Book className="h-12 w-12 text-muted-foreground mb-4" />
+                     <h3 className="font-bold text-lg">No Tests Created Yet</h3>
+                     <p className="text-sm text-muted-foreground mt-1">Create your first test to see it here.</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    const displayedAvatars = enrolledStudents.slice(0, 3);
+    const remainingCount = enrolledStudents.length > 3 ? enrolledStudents.length - 3 : 0;
 
     return (
         <Card className="bg-card/70 backdrop-blur-sm overflow-hidden">
@@ -18,7 +81,7 @@ export default function MyCourse() {
                 {courseImage && (
                     <Image
                         src={courseImage.imageUrl}
-                        alt={courseImage.description}
+                        alt={latestTest.title}
                         fill
                         className="object-cover"
                         data-ai-hint={courseImage.imageHint}
@@ -26,28 +89,30 @@ export default function MyCourse() {
                 )}
             </div>
             <CardContent className="p-6">
-                <h3 className="font-bold text-lg">Modern Physics Final</h3>
-                <p className="text-sm text-muted-foreground mt-1">25 Questions | 1 hour</p>
+                <h3 className="font-bold text-lg truncate">{latestTest.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{latestTest.questions.length} Questions | {latestTest.duration} minutes</p>
                 <div className="mt-4">
                     <div className="flex justify-between items-center mb-1">
                         <span className="text-xs font-semibold">Progress</span>
-                        <span className="text-xs font-semibold">75%</span>
+                        <span className="text-xs font-semibold">{progress.toFixed(0)}%</span>
                     </div>
-                    <Progress value={75} className="h-2" />
+                    <Progress value={progress} className="h-2" />
                 </div>
                  <div className="mt-4 flex items-center justify-between">
                     <div className="flex -space-x-2">
-                        {avatars.map(avatar => avatar && (
-                            <Avatar key={avatar.id} className="border-2 border-background">
-                                <AvatarImage src={avatar.imageUrl} alt={avatar.description} />
-                                <AvatarFallback>{avatar.description.charAt(0)}</AvatarFallback>
+                        {displayedAvatars.map(student => (
+                            <Avatar key={student.id} className="border-2 border-background">
+                                <AvatarImage src={`https://picsum.photos/seed/${student.id}/40/40`} alt={student.name} />
+                                <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                         ))}
-                         <Avatar className="border-2 border-background">
-                            <AvatarFallback>+12</AvatarFallback>
-                        </Avatar>
+                         {remainingCount > 0 && (
+                            <Avatar className="border-2 border-background">
+                                <AvatarFallback>+{remainingCount}</AvatarFallback>
+                            </Avatar>
+                         )}
                     </div>
-                     <span className="text-sm font-medium text-muted-foreground">15 students enrolled</span>
+                     <span className="text-sm font-medium text-muted-foreground">{enrolledStudents.length} of {totalStudentCount} students started</span>
                  </div>
             </CardContent>
         </Card>
