@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card"
 import {
   ChartContainer,
@@ -62,45 +63,25 @@ export default function StatisticsChart() {
               nameKey="stat"
               innerRadius={60}
               strokeWidth={5}
+              startAngle={90}
+              endAngle={450}
             >
             </Pie>
-            <ChartLegend
+             <ChartLegend
                 content={<ChartLegendContent nameKey="stat" />}
-                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/2 [&>*]:justify-center"
             />
           </PieChart>
         </ChartContainer>
       </CardContent>
-       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="value"
-              nameKey="stat"
-              innerRadius={60}
-              strokeWidth={5}
-            >
-            </Pie>
-            <ChartLegend
-                content={<ChartLegendContent nameKey="stat" />}
-                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-            />
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-      <div className="flex flex-col gap-2 p-6 pt-0 text-sm">
-        <div className="flex-1 text-center text-muted-foreground">
-            Showing total pass/fail rates for all students.
+      <CardFooter className="flex-col gap-2 text-sm">
+        <div className="flex items-center gap-2 font-medium leading-none">
+          82% of students passed their recent assessments.
         </div>
-      </div>
+        <div className="leading-none text-muted-foreground">
+          Showing total pass/fail rates for all students.
+        </div>
+      </CardFooter>
     </Card>
   )
 }

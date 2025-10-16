@@ -16,6 +16,7 @@ import { Test, Question } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { Label } from "../ui/label";
 
 const optionSchema = z.object({
   id: z.string(),
@@ -36,6 +37,16 @@ const testSchema = z.object({
   description: z.string().optional(),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute"),
   questions: z.array(questionSchema).min(1, "A test must have at least one question"),
+}).superRefine((data, ctx) => {
+    data.questions.forEach((q, index) => {
+        if (q.type === "mcq" && (!q.correctAnswer || q.correctAnswer === "")) {
+            ctx.addIssue({
+                path: [`questions`, index, `correctAnswer`],
+                message: "A correct answer must be selected for MCQs.",
+                code: z.ZodIssueCode.custom
+            })
+        }
+    })
 });
 
 type TestFormData = z.infer<typeof testSchema>;
@@ -105,7 +116,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
         }
 
         localStorage.setItem(TESTS_STORAGE_KEY, JSON.stringify(allTests));
-        router.push("/teacher/dashboard");
+        router.push("/teacher/tests");
     };
 
     const addQuestion = (type: "mcq" | "short-answer" | "essay") => {
@@ -183,6 +194,7 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
     });
     
     const questionType = form.watch(`questions.${index}.type`);
+    const questionId = form.watch(`questions.${index}.id`);
 
     return (
         <Card className="bg-card/50 border-border/70" key={index}>
@@ -227,24 +239,35 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                 {questionType === 'mcq' && (
                     <div className="space-y-4">
                         <FormField
-                            name={`questions.${index}.correctAnswer`}
                             control={form.control}
+                            name={`questions.${index}.correctAnswer`}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="space-y-3">
                                     <FormLabel>Options</FormLabel>
                                     <FormDescription>Select the correct answer by clicking the radio button.</FormDescription>
                                     <FormControl>
-                                        <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
+                                        <RadioGroup
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            className="space-y-2"
+                                        >
                                             {fields.map((option, optionIndex) => (
-                                                <div key={option.id} className="flex items-center gap-2">
-                                                    <RadioGroupItem value={(option as any).id} id={`q${index}-o${optionIndex}`} />
-                                                    <FormField name={`questions.${index}.options.${optionIndex}.text`} control={form.control} render={({ field: optionField }) => (
-                                                        <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} className="flex-1" />
-                                                    )} />
-                                                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} disabled={fields.length <= 2}>
-                                                        <XCircle className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
+                                                 <FormField
+                                                    key={option.id}
+                                                    control={form.control}
+                                                    name={`questions.${index}.options.${optionIndex}.text`}
+                                                    render={({ field: optionField }) => (
+                                                        <FormItem className="flex items-center gap-2 space-y-0">
+                                                            <FormControl>
+                                                                <RadioGroupItem value={(option as any).id} />
+                                                            </FormControl>
+                                                            <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} className="flex-1" />
+                                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} disabled={fields.length <= 2}>
+                                                                <XCircle className="h-4 w-4" />
+                                                            </Button>
+                                                        </FormItem>
+                                                    )}
+                                                />
                                             ))}
                                         </RadioGroup>
                                     </FormControl>
