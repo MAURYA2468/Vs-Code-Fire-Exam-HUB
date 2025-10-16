@@ -317,7 +317,10 @@ export default function TestResults({ testId }: { testId: string }) {
                         <AccordionItem value={group.student.id} key={group.student.id}>
                             <AccordionTrigger className="hover:no-underline">
                                 <div className="flex w-full items-center justify-between pr-4">
-                                    <div className="flex-1 text-left font-semibold">{group.student.name}</div>
+                                    <div className="flex-1 text-left font-semibold">
+                                        {group.student.name}
+                                        {group.student.registerNumber && <span className="ml-2 font-mono text-xs text-muted-foreground">({group.student.registerNumber})</span>}
+                                    </div>
                                     <div className="flex-1 text-center hidden sm:block"><Badge variant="secondary">{group.submissions.length} {group.submissions.length === 1 ? "attempt" : "attempts"}</Badge></div>
                                     <div className="flex-1 text-center hidden md:block">Best: <Badge>{group.bestScore.toFixed(1)} / {totalPoints}</Badge></div>
                                     <div className="flex-1 text-right">Latest: <Badge variant="outline">{group.latestScore.toFixed(1)} / {totalPoints}</Badge></div>
