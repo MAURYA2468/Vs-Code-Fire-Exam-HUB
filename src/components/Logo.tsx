@@ -10,7 +10,7 @@ const Logo = () => {
             <path d="M9 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
-      <span className="font-headline tracking-tighter">notesight</span>
+      <span className="font-headline tracking-tighter">Exam Hub</span>
     </div>
   );
 };

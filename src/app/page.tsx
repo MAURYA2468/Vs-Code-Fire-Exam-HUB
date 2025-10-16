@@ -18,7 +18,7 @@ const TestCategory = ({ text, active = false }: { text: string, active?: boolean
 );
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'notesight-hero');
+  const heroImage = PlaceHolderImages.find(p => p.id === 'examhub-hero');
 
   return (
     <div className="flex min-h-screen flex-col bg-background p-4 sm:p-6 md:p-8">
@@ -53,10 +53,10 @@ export default function Home() {
                         <span className="relative inline-block">
                             <span className="absolute inset-x-0 bottom-1.5 h-3 bg-yellow-300"></span>
                             <span className="relative z-10">Scores</span>
-                        </span> with <br /> NoteSightAI
+                        </span> with <br /> Exam Hub
                     </h1>
                     <p className="mt-6 text-base text-muted-foreground max-w-md">
-                        Standardized Tests, AP Tests and Courses. High School and University Courses.
+                        Standardized Tests, AP Tests, and Courses. High School and University Courses.
                     </p>
                     <div className="mt-8 flex items-center gap-4">
                         <Button size="lg" className="rounded-full px-8 py-6 text-base">Get started</Button>
