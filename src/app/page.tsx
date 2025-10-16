@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Search, User } from 'lucide-react';
+import { Search } from 'lucide-react';
 import Logo from '@/components/Logo';
 import {
   DropdownMenu,
