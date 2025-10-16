@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AuthContext, AuthContextType } from "@/context/AuthContext";
@@ -7,6 +8,14 @@ import React, { useState, useEffect, ReactNode } from "react";
 
 const USERS_STORAGE_KEY = "exam-hub-users";
 const SESSION_STORAGE_KEY = "exam-hub-session";
+
+// A simple and reliable UUID generator that works in any environment.
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -66,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const newUser: User = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name,
       email,
       password, // In a real app, this should be hashed.

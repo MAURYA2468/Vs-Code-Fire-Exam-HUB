@@ -19,6 +19,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { Label } from "../ui/label";
 
+// A simple and reliable UUID generator that works in any environment.
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 const optionSchema = z.object({
   id: z.string(),
   text: z.string().min(1, "Option text cannot be empty"),
@@ -160,7 +168,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
         } else {
             // Create new test
             const newTest: Test = {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 teacherId: user.id,
                 createdAt: new Date().toISOString(),
                 ...finalData,
@@ -178,7 +186,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
 
     const addQuestion = (type: "mcq" | "short-answer" | "essay") => {
         append({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             type,
             text: "",
             points: 10,
@@ -186,7 +194,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
             category: '',
             negativeMarks: 0,
             explanation: '',
-            options: type === "mcq" ? [{id: crypto.randomUUID(), text: ""}, {id: crypto.randomUUID(), text: ""}] : [],
+            options: type === "mcq" ? [{id: generateUUID(), text: ""}, {id: generateUUID(), text: ""}] : [],
             correctAnswer: "",
         });
     };
@@ -387,7 +395,7 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                 </FormItem>
                             )}
                         />
-                         <Button type="button" variant="outline" size="sm" onClick={() => append({ id: crypto.randomUUID(), text: "" })}>
+                         <Button type="button" variant="outline" size="sm" onClick={() => append({ id: generateUUID(), text: "" })}>
                             <PlusCircle className="mr-2" /> Add Option
                         </Button>
                     </div>

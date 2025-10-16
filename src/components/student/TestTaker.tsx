@@ -24,6 +24,14 @@ import { cn } from "@/lib/utils";
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
 
+// A simple and reliable UUID generator that works in any environment.
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 type FormData = {
   answers: { [questionId: string]: string };
 };
@@ -213,7 +221,7 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
     }));
     
     const newSubmission: Submission = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       testId: test.id,
       studentId: user.id,
       answers,
