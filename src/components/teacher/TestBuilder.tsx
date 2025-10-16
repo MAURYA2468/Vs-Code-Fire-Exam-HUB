@@ -194,7 +194,6 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
     });
     
     const questionType = form.watch(`questions.${index}.type`);
-    const questionId = form.watch(`questions.${index}.id`);
 
     return (
         <Card className="bg-card/50 border-border/70" key={index}>
@@ -259,7 +258,7 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                                     render={({ field: optionField }) => (
                                                         <FormItem className="flex items-center gap-2 space-y-0">
                                                             <FormControl>
-                                                                <RadioGroupItem value={(option as any).id} />
+                                                                <RadioGroupItem value={option.id} />
                                                             </FormControl>
                                                             <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} className="flex-1" />
                                                             <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} disabled={fields.length <= 2}>
