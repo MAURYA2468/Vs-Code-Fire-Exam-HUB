@@ -68,13 +68,13 @@ const Footer = () => (
           <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">Career</Link></li>
         </ul>
       </div>
-      <div>
+      <div className="space-y-4">
         <h3 className="font-semibold text-foreground">Stay up to date</h3>
-        <form className="mt-4 flex gap-2">
+        <form className="flex flex-col items-center gap-2 sm:flex-row md:items-start">
           <Input type="email" placeholder="Your email address" className="flex-1" />
           <Button>Submit</Button>
         </form>
-        <div className="mt-4 flex justify-center gap-4 md:justify-start">
+        <div className="flex justify-center gap-4 md:justify-start">
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link>
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Term & Condition</Link>
         </div>
