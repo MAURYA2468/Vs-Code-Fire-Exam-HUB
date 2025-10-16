@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm, useFieldArray, Controller } from "react-hook-form";
@@ -276,33 +277,31 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                     <FormLabel>Options</FormLabel>
                                     <FormDescription>Select the correct answer by clicking the radio button.</FormDescription>
                                     <FormControl>
-                                        <RadioGroup
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                            className="space-y-2"
-                                        >
-                                            {fields.map((option: { id: string }, optionIndex) => (
-                                                <div key={option.id} className="flex items-center gap-2 space-y-0">
-                                                    <FormControl>
-                                                        <RadioGroupItem value={option.id} />
-                                                    </FormControl>
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`questions.${index}.options.${optionIndex}.text`}
-                                                        render={({ field: optionField }) => (
-                                                            <FormItem className="flex-1">
-                                                                <FormControl>
-                                                                    <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
+                                        <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
+                                            {fields.map((option, optionIndex) => {
+                                                const optionId = (option as any).id;
+                                                return (
+                                                <div key={optionId} className="flex items-center gap-2 space-y-0">
+                                                    <RadioGroupItem value={optionId} id={optionId} />
+                                                    <Label htmlFor={optionId} className="w-full">
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`questions.${index}.options.${optionIndex}.text`}
+                                                            render={({ field: optionField }) => (
+                                                                <FormItem className="flex-1">
+                                                                    <FormControl>
+                                                                        <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    </Label>
                                                     <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} disabled={fields.length <= 2}>
                                                         <XCircle className="h-4 w-4" />
                                                     </Button>
                                                 </div>
-                                            ))}
+                                            )})}
                                         </RadioGroup>
                                     </FormControl>
                                     <FormMessage />
@@ -318,3 +317,6 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
         </Card>
     );
 }
+
+
+    
