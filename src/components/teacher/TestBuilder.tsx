@@ -224,7 +224,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
                         <FormItem>
                             <FormLabel>Access Code (Optional)</FormLabel>
                             <FormDescription>If set, students must enter this code to start the test.</FormDescription>
-                            <FormControl><Input placeholder="e.g., ALGEBRA101" {...field} /></FormControl>
+                            <FormControl><Input placeholder="e.g., ALGEBRA101" {...field} value={field.value ?? ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -232,7 +232,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
                         <FormItem>
                             <FormLabel>Max Attempts</FormLabel>
                             <FormDescription>Set to 0 for unlimited attempts.</FormDescription>
-                            <FormControl><Input type="number" min={0} {...field} /></FormControl>
+                            <FormControl><Input type="number" min={0} {...field} value={field.value ?? 0} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -310,7 +310,7 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                     <FormField name={`questions.${index}.negativeMarks`} control={form.control} render={({ field }) => (
                         <FormItem>
                             <FormLabel>Negative Marks</FormLabel>
-                            <FormControl><Input type="number" placeholder="e.g., 0.25" {...field} /></FormControl>
+                            <FormControl><Input type="number" placeholder="e.g., 0.25" {...field} value={field.value ?? 0} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -361,9 +361,7 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                                 const optionId = (option as any).id;
                                                 return (
                                                 <div key={optionId} className="flex items-center gap-2 space-y-0">
-                                                    <FormControl>
-                                                        <RadioGroupItem value={optionId} id={`${field.name}-${optionId}`} />
-                                                    </FormControl>
+                                                    <RadioGroupItem value={optionId} id={`${field.name}-${optionId}`} />
                                                     <Label htmlFor={`${field.name}-${optionId}`} className="w-full">
                                                         <FormField
                                                             control={form.control}
@@ -398,7 +396,7 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                     <FormItem>
                         <FormLabel>Explanation (Optional)</FormLabel>
                          <FormDescription>This will be shown to the student after they complete the test.</FormDescription>
-                        <FormControl><Textarea placeholder="Explain why the correct answer is right." {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Explain why the correct answer is right." {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
@@ -406,3 +404,5 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
         </Card>
     );
 }
+
+    
