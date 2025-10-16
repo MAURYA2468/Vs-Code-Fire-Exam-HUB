@@ -35,6 +35,12 @@
       "description": "Avatar for Natalia Jones",
       "imageUrl": "https://picsum.photos/seed/natalia-jones/40/40",
       "imageHint": "woman face"
+    },
+    {
+      "id": "auth-hero",
+      "description": "An illustration of a person working on a computer.",
+      "imageUrl": "https://picsum.photos/seed/auth-hero/600/600",
+      "imageHint": "illustration computer"
     }
   ]
 }

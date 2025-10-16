@@ -118,8 +118,8 @@ export function AuthForm({ mode, userRole }: AuthFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-sm bg-card/70 backdrop-blur-sm">
-      <CardHeader>
+    <Card className="w-full max-w-sm border-none bg-transparent shadow-none">
+      <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">{title}</CardTitle>
         <CardDescription>
           to the {userType} Portal
@@ -200,7 +200,14 @@ export function AuthForm({ mode, userRole }: AuthFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex justify-between">
+                    <FormLabel>Password</FormLabel>
+                    {mode === 'login' && (
+                       <Link href="#" className="text-xs text-primary hover:underline">
+                        Forgot password?
+                      </Link>
+                    )}
+                  </div>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
