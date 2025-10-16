@@ -13,6 +13,8 @@ export interface User {
 
 export type QuestionType = 'mcq' | 'short-answer' | 'essay';
 export type QuestionDifficulty = 'Easy' | 'Medium' | 'Hard';
+export type QuestionStatus = 'unattempted' | 'attempted' | 'visited' | 'markedForReview';
+
 
 export interface MCQOption {
   id: string;
@@ -57,9 +59,7 @@ export interface Submission {
   answers: Answer[];
   submittedAt: string;
   attemptNumber: number;
-  score?: number; // No longer used for final score, but kept for potential data analysis.
+  score?: number; 
   gradedScore?: number; // Manually calculated score by teacher. This is the source of truth.
   leaveCount?: number;
 }
-
-    
