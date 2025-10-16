@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Test } from "@/lib/types";
-import { PlusCircle, Clock, ListOrdered, ArrowRight, Edit } from "lucide-react";
+import { PlusCircle, Clock, ListOrdered, ArrowRight, Edit, KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { format, parseISO } from 'date-fns';
@@ -64,6 +64,12 @@ export default function TeacherTestsPage() {
                   <ListOrdered className="mr-2 h-4 w-4" />
                   <span>{test.questions.length} questions</span>
                 </div>
+                {test.accessCode && (
+                    <div className="mt-2 flex items-center text-sm text-muted-foreground">
+                        <KeyRound className="mr-2 h-4 w-4" />
+                        <span>Access Code: <span className="font-semibold text-foreground">{test.accessCode}</span></span>
+                    </div>
+                )}
               </CardContent>
               <CardFooter className="flex flex-col items-stretch">
                 <p className="mb-4 self-start text-xs text-muted-foreground">
