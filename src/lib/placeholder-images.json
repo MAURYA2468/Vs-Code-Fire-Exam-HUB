@@ -38,9 +38,9 @@
     },
     {
       "id": "auth-hero",
-      "description": "An illustration of a person working on a computer.",
+      "description": "An illustration related to education and learning.",
       "imageUrl": "https://picsum.photos/seed/auth-hero/600/600",
-      "imageHint": "illustration computer"
+      "imageHint": "education learning"
     }
   ]
 }
