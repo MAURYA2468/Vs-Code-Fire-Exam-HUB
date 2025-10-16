@@ -19,7 +19,7 @@ import { ThemeToggle } from "../ThemeToggle";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 
 const teacherNavItems = [
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -85,6 +85,7 @@ export default function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
+                <AvatarImage src={`https://picsum.photos/seed/${user?.id}/40/40`} />
                 <AvatarFallback>{user?.name ? getInitials(user.name) : <UserIcon />}</AvatarFallback>
               </Avatar>
             </Button>

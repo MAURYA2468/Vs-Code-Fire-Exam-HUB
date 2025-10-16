@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/lib/types';
-import AppHeader from './Header';
 import { Loader2 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -37,7 +36,6 @@ export default function AppLayout({ children, requiredRole }: AppLayoutProps) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <AppHeader />
       <main className="flex-1 p-4 md:p-6 lg:p-8">
           {children}
       </main>

@@ -20,44 +20,6 @@ export default function Home() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden font-sans">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <header className="flex h-24 items-center justify-between">
-          <Logo />
-          <nav className="hidden items-center space-x-8 md:flex">
-            <Link href="/" className="border-b-2 border-primary text-sm font-semibold text-primary">HOME</Link>
-            <Link href="/about" className="text-sm font-medium text-gray-500 hover:text-primary">ABOUT US</Link>
-            <Link href="/campaign" className="text-sm font-medium text-gray-500 hover:text-primary">OUR CAMPAIGN</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Search className="h-6 w-6 text-gray-500" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost">Login</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/login/student">Student Login</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/login/teacher">Teacher Login</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="default">Sign Up</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                 <DropdownMenuItem asChild>
-                  <Link href="/signup/student">Student Sign Up</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/signup/teacher">Teacher Sign Up</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-
         <main className="mt-10 lg:mt-20">
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
             <div className="pb-12">
