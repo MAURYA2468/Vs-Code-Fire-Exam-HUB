@@ -17,24 +17,19 @@ import { Search } from 'lucide-react';
 
 const teamMembers = [
     {
-        name: 'Liam Johnson',
+        name: 'Ankit Raj',
         role: 'Co-Founder & CEO',
-        avatarId: 'liam-johnson',
+        avatarId: 'ankit-raj',
     },
     {
-        name: 'Olivia Smith',
+        name: 'Atish Ranjan',
         role: 'Co-Founder & CTO',
-        avatarId: 'olivia-smith',
+        avatarId: 'atish-ranjan',
     },
     {
-        name: 'Noah Williams',
+        name: 'Arem Yeswanth',
         role: 'Lead Developer',
-        avatarId: 'noah-williams',
-    },
-    {
-        name: 'Emma Brown',
-        role: 'UI/UX Designer',
-        avatarId: 'emma-brown',
+        avatarId: 'arem-yeswanth',
     },
 ];
 
@@ -130,7 +125,7 @@ export default function AboutUsPage() {
                             The passionate minds dedicated to revolutionizing education.
                         </p>
                     </div>
-                    <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {teamAvatars.map((member) => (
                             <Card key={member.name} className="text-center transition-transform hover:scale-105 hover:shadow-xl">
                                 <CardContent className="p-6">

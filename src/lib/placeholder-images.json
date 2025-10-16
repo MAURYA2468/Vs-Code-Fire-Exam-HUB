@@ -55,28 +55,22 @@
       "imageHint": "physics classroom"
     },
     {
-      "id": "liam-johnson",
-      "description": "Avatar for Liam Johnson",
-      "imageUrl": "https://picsum.photos/seed/liam-j/40/40",
+      "id": "ankit-raj",
+      "description": "Avatar for Ankit Raj",
+      "imageUrl": "https://picsum.photos/seed/ankit-r/40/40",
       "imageHint": "man face"
     },
     {
-      "id": "olivia-smith",
-      "description": "Avatar for Olivia Smith",
-      "imageUrl": "https://picsum.photos/seed/olivia-s/40/40",
-      "imageHint": "woman face"
-    },
-    {
-      "id": "noah-williams",
-      "description": "Avatar for Noah Williams",
-      "imageUrl": "https://picsum.photos/seed/noah-w/40/40",
+      "id": "atish-ranjan",
+      "description": "Avatar for Atish Ranjan",
+      "imageUrl": "https://picsum.photos/seed/atish-r/40/40",
       "imageHint": "person face"
     },
     {
-      "id": "emma-brown",
-      "description": "Avatar for Emma Brown",
-      "imageUrl": "https://picsum.photos/seed/emma-b/40/40",
-      "imageHint": "woman face portrait"
+      "id": "arem-yeswanth",
+      "description": "Avatar for Arem Yeswanth",
+      "imageUrl": "https://picsum.photos/seed/arem-y/40/40",
+      "imageHint": "person face"
     },
     {
       "id": "ava-jones",
