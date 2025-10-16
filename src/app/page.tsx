@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -40,7 +41,7 @@ export default function Home() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <User className="h-6 w-6 text-gray-500" />
-                  <span className="sr-only">Login</span>
+                  <span className="sr-only">Login or Sign up</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -49,6 +50,13 @@ export default function Home() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/login/teacher">Teacher Login</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                 <DropdownMenuItem asChild>
+                  <Link href="/signup/student">Student Sign Up</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/signup/teacher">Teacher Sign Up</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
