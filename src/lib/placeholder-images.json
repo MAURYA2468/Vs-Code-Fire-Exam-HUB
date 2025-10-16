@@ -1,10 +1,40 @@
 {
   "placeholderImages": [
     {
-      "id": "auth-hero",
-      "description": "A focused student taking an online exam on a laptop.",
-      "imageUrl": "https://picsum.photos/seed/student-exam/800/1000",
-      "imageHint": "student exam"
+      "id": "prep-hero",
+      "description": "A smiling student holding a tablet, ready to prepare for an exam.",
+      "imageUrl": "https://picsum.photos/seed/prep-student/450/550",
+      "imageHint": "student tablet"
+    },
+    {
+      "id": "team-avatar-1",
+      "description": "Team member 1",
+      "imageUrl": "https://picsum.photos/seed/team1/40/40",
+      "imageHint": "person face"
+    },
+    {
+      "id": "team-avatar-2",
+      "description": "Team member 2",
+      "imageUrl": "https://picsum.photos/seed/team2/40/40",
+      "imageHint": "person face"
+    },
+    {
+      "id": "team-avatar-3",
+      "description": "Team member 3",
+      "imageUrl": "https://picsum.photos/seed/team3/40/40",
+      "imageHint": "person face"
+    },
+    {
+      "id": "testimonial-avatar-1",
+      "description": "Avatar for Matt Haris",
+      "imageUrl": "https://picsum.photos/seed/matt-haris/40/40",
+      "imageHint": "man face"
+    },
+    {
+      "id": "testimonial-avatar-2",
+      "description": "Avatar for Natalia Jones",
+      "imageUrl": "https://picsum.photos/seed/natalia-jones/40/40",
+      "imageHint": "woman face"
     }
   ]
 }

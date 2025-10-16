@@ -3,7 +3,6 @@ import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
-import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 export const metadata: Metadata = {
@@ -32,7 +31,6 @@ export default function RootLayout({
             <div className="relative z-10 flex min-h-screen flex-col">
               <main className="flex-1 bg-background/80">{children}</main>
             </div>
-            <Footer />
             <Toaster />
           </AuthProvider>
         </ThemeProvider>
