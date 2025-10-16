@@ -21,7 +21,7 @@ type StudentReportItem = {
   name: string;
   registerNumber: string;
   testsTaken: number;
-  averageScore: number;
+  averageScore: number | null;
 };
 type SortKey = 'name' | 'registerNumber' | 'testsTaken' | 'averageScore';
 type SortDirection = 'asc' | 'desc';
@@ -60,13 +60,15 @@ export default function ReportsPage() {
           name: student.name,
           registerNumber: student.registerNumber || 'N/A',
           testsTaken: 0,
-          averageScore: 0,
+          averageScore: null,
         });
       }
 
       const scoreTotals: { [studentId: string]: { totalPercentage: number; count: number } } = {};
 
       for (const submission of teacherSubmissions) {
+         if (!reportMap.has(submission.studentId)) continue; // Only process submissions from known students
+
         if (!scoreTotals[submission.studentId]) {
           scoreTotals[submission.studentId] = { totalPercentage: 0, count: 0 };
         }
@@ -91,7 +93,7 @@ export default function ReportsPage() {
         }
       });
       
-      const reportingStudents = Array.from(reportMap.values()).filter(s => s.testsTaken > 0);
+      const reportingStudents = Array.from(reportMap.values());
 
       setStudents(reportingStudents);
       setIsLoading(false);
@@ -105,9 +107,13 @@ export default function ReportsPage() {
         student.registerNumber?.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .sort((a, b) => {
-        const aValue = a[sortKey] || '';
-        const bValue = b[sortKey] || '';
+        const aValue = a[sortKey];
+        const bValue = b[sortKey];
         
+        // Handle null or undefined values for sorting
+        if (aValue === null || aValue === undefined) return sortDirection === 'asc' ? -1 : 1;
+        if (bValue === null || bValue === undefined) return sortDirection === 'asc' ? 1 : -1;
+
         let comparison = 0;
         if (aValue > bValue) {
           comparison = 1;
@@ -123,7 +129,7 @@ export default function ReportsPage() {
     <div className="container mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Student Reports</h1>
-        <p className="text-muted-foreground">A list of all students who have completed your tests.</p>
+        <p className="text-muted-foreground">A list of all students and their performance on your tests.</p>
       </div>
 
       <Card className="bg-card/70 backdrop-blur-sm">
@@ -131,7 +137,7 @@ export default function ReportsPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle>All Students</CardTitle>
-              <CardDescription>Search and sort through students who have taken your tests.</CardDescription>
+              <CardDescription>Search and sort through your students.</CardDescription>
             </div>
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
               <Input 
@@ -194,16 +200,20 @@ export default function ReportsPage() {
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell className="text-center">{student.testsTaken}</TableCell>
                       <TableCell className="text-center">
-                        <Badge variant={student.averageScore > 75 ? "default" : student.averageScore > 50 ? "secondary" : "destructive"}>
+                        {student.averageScore !== null ? (
+                          <Badge variant={student.averageScore > 75 ? "default" : student.averageScore > 50 ? "secondary" : "destructive"}>
                             {student.averageScore.toFixed(1)}%
-                        </Badge>
+                          </Badge>
+                        ) : (
+                           <Badge variant="outline">N/A</Badge>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="h-24 text-center">
-                      {students.length === 0 ? "No students have taken your tests yet." : "No students found."}
+                      {students.length === 0 ? "No students have been added to the system." : "No students found."}
                     </TableCell>
                   </TableRow>
                 )}
