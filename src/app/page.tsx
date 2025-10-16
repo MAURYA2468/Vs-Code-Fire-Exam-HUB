@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FlaskConical, HelpCircle, BarChart, GraduationCap } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from "@/lib/utils";
 
 const Header = () => (
   <header className="container mx-auto flex items-center justify-between py-4">
@@ -272,3 +273,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
