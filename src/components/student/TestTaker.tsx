@@ -38,6 +38,8 @@ export default function TestTaker({ testId }: { testId: string }) {
   const [timeLeft, setTimeLeft] = useState(0);
   const [showSubmitWarning, setShowSubmitWarning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [leaveCount, setLeaveCount] = useState(0);
+
 
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -81,6 +83,24 @@ export default function TestTaker({ testId }: { testId: string }) {
     });
   }, [carouselApi]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        const newLeaveCount = leaveCount + 1;
+        setLeaveCount(newLeaveCount);
+        toast({
+          variant: "destructive",
+          title: "Warning: You have left the test page.",
+          description: `This is your ${newLeaveCount} time leaving. This activity is recorded.`,
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [leaveCount, toast]);
+
   const submitTest = async (data: FormData) => {
     if (!user || !test || isSubmitting) return;
     setIsSubmitting(true);
@@ -109,6 +129,7 @@ export default function TestTaker({ testId }: { testId: string }) {
       answers,
       submittedAt: new Date().toISOString(),
       score,
+      leaveCount: leaveCount,
     };
 
     const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
@@ -152,9 +173,17 @@ export default function TestTaker({ testId }: { testId: string }) {
         <CardHeader className="text-center">
           <CardTitle className="text-3xl">{test.title}</CardTitle>
           <CardDescription>{test.description}</CardDescription>
-          <div className="flex items-center justify-center gap-2 pt-4 font-semibold text-lg text-primary">
-            <Clock className="h-6 w-6" />
-            <span>Time Left: {formatTime(timeLeft)}</span>
+          <div className="flex items-center justify-center gap-4 pt-4">
+            <div className="flex items-center justify-center gap-2 font-semibold text-lg text-primary">
+              <Clock className="h-6 w-6" />
+              <span>Time Left: {formatTime(timeLeft)}</span>
+            </div>
+             {leaveCount > 0 && (
+              <div className="flex items-center gap-2 text-yellow-500 font-semibold text-lg">
+                <AlertTriangle className="h-6 w-6" />
+                <span>{leaveCount}</span>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>

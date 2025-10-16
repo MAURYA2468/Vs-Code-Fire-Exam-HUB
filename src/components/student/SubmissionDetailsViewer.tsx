@@ -6,7 +6,7 @@ import { Submission, Test, User, Question } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle } from "lucide-react";
+import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle, AlertTriangle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
@@ -128,6 +128,12 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
                             <Clock className="mr-2 h-4 w-4" />
                             <span>Submitted: {format(parseISO(submission.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</span>
                         </div>
+                         {(submission.leaveCount ?? 0) > 0 && (
+                            <div className="flex items-center font-semibold text-yellow-500">
+                                <AlertTriangle className="mr-2 h-4 w-4" />
+                                <span>You left the test page {submission.leaveCount} time(s)</span>
+                            </div>
+                        )}
                     </div>
                 </CardHeader>
                 <CardFooter>

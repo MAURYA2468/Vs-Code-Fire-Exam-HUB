@@ -6,7 +6,7 @@ import { Submission, Test, User, Question, MCQOption } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
@@ -110,6 +110,7 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
     }
     
     const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
+    const finalScore = submission.gradedScore ?? submission.score ?? 0;
 
     return (
         <div className="container mx-auto">
@@ -126,11 +127,17 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
                             <Clock className="mr-2 h-4 w-4" />
                             <span>Submitted: {format(parseISO(submission.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</span>
                         </div>
+                         {(submission.leaveCount ?? 0) > 0 && (
+                            <div className="flex items-center font-semibold text-yellow-500">
+                                <AlertTriangle className="mr-2 h-4 w-4" />
+                                <span>Left test page {submission.leaveCount} time(s)</span>
+                            </div>
+                        )}
                     </div>
                 </CardHeader>
                 <CardFooter>
-                    <Badge variant={submission.score === undefined ? "secondary" : "default"}>
-                        Auto-Graded Score: {submission.score ?? "N/A"} / {totalPoints}
+                    <Badge variant={submission.gradedScore !== undefined ? "default" : "secondary"}>
+                       {submission.gradedScore !== undefined ? "Final Graded Score" : "Auto-Graded Score"}: {finalScore} / {totalPoints}
                     </Badge>
                 </CardFooter>
             </Card>
@@ -141,7 +148,7 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
                         <CardHeader>
                             <div className="flex justify-between">
                                 <CardTitle>Question {index + 1}</CardTitle>
-                                <Badge variant="secondary">{question.points} {question.points === 1 ? 'point' : 'points'}</Badge>
+                                 <Badge variant="secondary">{submission.answers.find(a => a.questionId === question.id)?.pointsAwarded ?? (question.type === 'mcq' ? (getStudentAnswer(question.id) === question.correctAnswer ? question.points : 0) : 'Ungraded')} / {question.points} points</Badge>
                             </div>
                             <CardDescription className="pt-2 text-base text-foreground">{question.text}</CardDescription>
                         </CardHeader>

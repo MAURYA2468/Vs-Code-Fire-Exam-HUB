@@ -50,4 +50,5 @@ export interface Submission {
   submittedAt: string;
   score?: number; // Auto-calculated for MCQs
   gradedScore?: number; // Manually calculated score
+  leaveCount?: number;
 }

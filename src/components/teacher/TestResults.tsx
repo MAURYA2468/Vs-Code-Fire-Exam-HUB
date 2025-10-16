@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, Users, FileText, BarChart2, Eye, Edit } from "lucide-react";
+import { Loader2, Users, FileText, BarChart2, Eye, Edit, AlertTriangle } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -206,6 +206,7 @@ export default function TestResults({ testId }: { testId: string }) {
                 <TableHead>Submitted At</TableHead>
                 <TableHead>Score</TableHead>
                 {needsManualGrading && <TableHead>Status</TableHead>}
+                <TableHead className="text-center">Away</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -234,6 +235,16 @@ export default function TestResults({ testId }: { testId: string }) {
                           )}
                       </TableCell>
                     }
+                    <TableCell className="text-center font-medium">
+                      {(sub.leaveCount ?? 0) > 0 ? (
+                        <div className="flex items-center justify-center gap-1 text-yellow-500">
+                           <AlertTriangle className="h-4 w-4" />
+                           {sub.leaveCount}
+                        </div>
+                      ) : (
+                        <span>0</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right space-x-2">
                         <Button asChild variant="outline" size="sm">
                             <Link href={`/teacher/tests/${testId}/submissions/${sub.id}`}>
@@ -252,7 +263,7 @@ export default function TestResults({ testId }: { testId: string }) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={needsManualGrading ? 6 : 5} className="h-24 text-center">
+                  <TableCell colSpan={needsManualGrading ? 7 : 6} className="h-24 text-center">
                     No submissions yet.
                   </TableCell>
                 </TableRow>
