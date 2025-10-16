@@ -175,23 +175,7 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
       questionId,
       value,
     }));
-
-    // Auto-grade MCQs
-    let score = 0;
-    // We need the original, unshuffled test to find the correct answer IDs.
-    const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
-    const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
-    const originalTest = allTests.find(t => t.id === testId);
-
-    originalTest?.questions.forEach(q => {
-      if (q.type === 'mcq') {
-        const studentAnswer = answers.find(a => a.questionId === q.id);
-        if (studentAnswer && studentAnswer.value === q.correctAnswer) {
-          score += q.points;
-        }
-      }
-    });
-
+    
     const newSubmission: Submission = {
       id: crypto.randomUUID(),
       testId: test.id,
@@ -199,7 +183,7 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
       answers,
       submittedAt: new Date().toISOString(),
       attemptNumber,
-      score,
+      score: 0, // All questions are manually graded
       leaveCount: leaveCount,
     };
 
@@ -210,7 +194,7 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
 
     toast({
       title: "Test Submitted!",
-      description: `Your submission for "${test.title}" has been recorded.`,
+      description: `Your submission for "${test.title}" is awaiting grading.`,
     });
 
     router.push(`/student/results/${newSubmission.id}`);
@@ -399,3 +383,5 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
     </div>
   );
 }
+
+    

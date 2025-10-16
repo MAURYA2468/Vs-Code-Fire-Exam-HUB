@@ -6,8 +6,9 @@ import { Submission, Test, User, Question, MCQOption } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, AlertTriangle, Lightbulb } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -51,34 +52,31 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
     }, [testId, submissionId]);
 
     const getStudentAnswer = (questionId: string) => {
-        return submission?.answers.find(a => a.questionId === questionId)?.value ?? "";
+        return submission?.answers.find(a => a.questionId === questionId);
     };
 
     const renderAnswer = (question: Question) => {
-        const studentAnswerValue = getStudentAnswer(question.id);
+        const studentAnswerValue = getStudentAnswer(question.id)?.value ?? "";
 
         switch (question.type) {
             case 'mcq':
                 const studentAnswerOption = question.options?.find(o => o.id === studentAnswerValue);
                 const correctAnswerOption = question.options?.find(o => o.id === question.correctAnswer);
-                const isCorrect = studentAnswerValue === question.correctAnswer;
 
                 return (
                     <div>
                         <p className="font-semibold text-muted-foreground">Student's Answer:</p>
-                        <div className={`mt-2 rounded-md border p-3 ${isCorrect ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10'}`}>
-                            <p className="flex items-center">
-                                {isCorrect ? <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> : <XCircle className="mr-2 h-5 w-5 text-red-500" />}
-                                {studentAnswerOption?.text || <span className="italic text-muted-foreground">No answer</span>}
-                            </p>
+                        <div className="mt-2 rounded-md border bg-muted/30 p-3">
+                            <p>{studentAnswerOption?.text || <span className="italic text-muted-foreground">No answer</span>}</p>
                         </div>
-                        {!isCorrect && correctAnswerOption && (
-                            <div className="mt-3">
-                                <p className="font-semibold text-muted-foreground">Correct Answer:</p>
-                                <div className="mt-2 rounded-md border border-green-500/50 bg-green-500/5 p-3">
-                                    <p>{correctAnswerOption.text}</p>
-                                </div>
-                            </div>
+                        {correctAnswerOption && (
+                            <Alert className="mt-4 border-primary/50 bg-primary/5">
+                                <Lightbulb className="h-4 w-4 text-primary" />
+                                <AlertTitle className="text-primary">Correct Answer</AlertTitle>
+                                <AlertDescription>
+                                    {correctAnswerOption.text}
+                                </AlertDescription>
+                            </Alert>
                         )}
                     </div>
                 );
@@ -110,7 +108,7 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
     }
     
     const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
-    const finalScore = submission.gradedScore ?? submission.score ?? 0;
+    const finalScore = submission.gradedScore ?? 0;
 
     return (
         <div className="container mx-auto">
@@ -137,7 +135,7 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
                 </CardHeader>
                 <CardFooter>
                     <Badge variant={submission.gradedScore !== undefined ? "default" : "secondary"}>
-                       {submission.gradedScore !== undefined ? "Final Graded Score" : "Auto-Graded Score"}: {finalScore} / {totalPoints}
+                       {submission.gradedScore !== undefined ? "Final Graded Score" : "Awaiting Grade"}: {finalScore} / {totalPoints}
                     </Badge>
                 </CardFooter>
             </Card>
@@ -148,7 +146,7 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
                         <CardHeader>
                             <div className="flex justify-between">
                                 <CardTitle>Question {index + 1}</CardTitle>
-                                 <Badge variant="secondary">{submission.answers.find(a => a.questionId === question.id)?.pointsAwarded ?? (question.type === 'mcq' ? (getStudentAnswer(question.id) === question.correctAnswer ? question.points : 0) : 'Ungraded')} / {question.points} points</Badge>
+                                 <Badge variant="secondary">{submission.answers.find(a => a.questionId === question.id)?.pointsAwarded ?? 'Ungraded'} / {question.points} points</Badge>
                             </div>
                             <CardDescription className="pt-2 text-base text-foreground">{question.text}</CardDescription>
                         </CardHeader>
@@ -162,3 +160,5 @@ export default function SubmissionViewer({ testId, submissionId }: SubmissionVie
         </div>
     );
 }
+
+    

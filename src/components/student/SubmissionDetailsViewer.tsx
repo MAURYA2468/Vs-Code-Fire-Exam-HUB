@@ -71,23 +71,24 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
         const studentAnswer = getStudentAnswer(question.id);
         const studentAnswerValue = studentAnswer?.value ?? "";
         const awardedPoints = studentAnswer?.pointsAwarded;
+        const isGraded = awardedPoints !== undefined;
 
         switch (question.type) {
             case 'mcq':
                 const studentAnswerOption = question.options?.find(o => o.id === studentAnswerValue);
                 const correctAnswerOption = question.options?.find(o => o.id === question.correctAnswer);
-                const isCorrect = studentAnswerValue === question.correctAnswer;
+                const isCorrect = isGraded && awardedPoints !== undefined && awardedPoints > 0;
 
                 return (
                     <div>
                         <p className="font-semibold text-muted-foreground">Your Answer:</p>
-                        <div className={`mt-2 rounded-md border p-3 ${isCorrect ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10'}`}>
+                        <div className={`mt-2 rounded-md border p-3 ${isGraded ? (isCorrect ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10') : 'bg-muted/30'}`}>
                             <p className="flex items-center">
-                                {isCorrect ? <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> : <XCircle className="mr-2 h-5 w-5 text-red-500" />}
+                                {isGraded && (isCorrect ? <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> : <XCircle className="mr-2 h-5 w-5 text-red-500" />)}
                                 {studentAnswerOption?.text || <span className="italic text-muted-foreground">No answer</span>}
                             </p>
                         </div>
-                        {!isCorrect && correctAnswerOption && (
+                        {isGraded && !isCorrect && correctAnswerOption && (
                             <div className="mt-3">
                                 <p className="font-semibold text-muted-foreground">Correct Answer:</p>
                                 <div className="mt-2 rounded-md border border-green-500/50 bg-green-500/5 p-3">
@@ -103,7 +104,7 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
                      <div>
                         <p className="font-semibold text-muted-foreground">Your Answer:</p>
                         <p className="mt-2 whitespace-pre-wrap rounded-md border bg-muted/30 p-3">{studentAnswerValue || <span className="italic text-muted-foreground">No answer</span>}</p>
-                        {awardedPoints !== undefined && (
+                        {isGraded && (
                              <div className="mt-2 font-semibold">
                                 <Badge>Points Awarded: {awardedPoints}</Badge>
                             </div>
@@ -124,8 +125,8 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
     }
     
     const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
-    const finalScore = submission.gradedScore ?? submission.score ?? 0;
-    const needsGrading = submission.gradedScore === undefined && test.questions.some(q => q.type !== 'mcq');
+    const finalScore = submission.gradedScore ?? 0;
+    const needsGrading = submission.gradedScore === undefined;
     const attemptText = test.maxAttempts && test.maxAttempts > 0 ? `Attempt ${submission.attemptNumber} of ${test.maxAttempts}` : `Attempt ${submission.attemptNumber}`;
 
 
@@ -175,14 +176,14 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
                         <CardHeader>
                             <div className="flex justify-between">
                                 <CardTitle>Question {index + 1}</CardTitle>
-                                <Badge variant="secondary">{submission.answers.find(a => a.questionId === question.id)?.pointsAwarded ?? (question.type === 'mcq' ? (getStudentAnswer(question.id)?.value === question.correctAnswer ? question.points : 0) : 'Ungraded')} / {question.points} points</Badge>
+                                <Badge variant="secondary">{submission.answers.find(a => a.questionId === question.id)?.pointsAwarded ?? 'Ungraded'} / {question.points} points</Badge>
                             </div>
                             <CardDescription className="pt-2 text-base text-foreground">{question.text}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Separator className="mb-4" />
                             {renderAnswer(question)}
-                             {question.explanation && (
+                             {submission.gradedScore !== undefined && question.explanation && (
                                 <Alert className="mt-4 border-primary/50 bg-primary/5">
                                     <Lightbulb className="h-4 w-4 text-primary" />
                                     <AlertTitle className="text-primary">Explanation</AlertTitle>
@@ -198,3 +199,5 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
         </div>
     );
 }
+
+    

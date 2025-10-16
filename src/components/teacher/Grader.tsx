@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,7 +6,7 @@ import { Submission, Test, User, Question } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, Save } from "lucide-react";
+import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, Save, Lightbulb } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -73,18 +75,28 @@ export default function Grader({ testId, submissionId }: GraderProps) {
         const foundSubmission = allSubmissions.find(s => s.id === submissionId);
         setSubmission(foundSubmission || null);
 
-        if (foundSubmission) {
+        if (foundSubmission && foundTest) {
             const allUsersJson = localStorage.getItem(USERS_STORAGE_KEY);
             const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
             const foundStudent = allUsers.find(u => u.id === foundSubmission.studentId);
             setStudent(foundStudent || null);
 
             // Initialize form with existing submission data
-            const answerFields = foundTest?.questions.map(q => {
+            const answerFields = foundTest.questions.map(q => {
                 const answer = foundSubmission.answers.find(a => a.questionId === q.id);
+                // If it's already graded, use the stored points. Otherwise, calculate for MCQ or default to 0.
+                let initialPoints = answer?.pointsAwarded;
+                if (initialPoints === undefined) {
+                    if (q.type === 'mcq') {
+                        initialPoints = answer?.value === q.correctAnswer ? q.points : 0;
+                    } else {
+                        initialPoints = 0;
+                    }
+                }
+
                 return {
                     questionId: q.id,
-                    pointsAwarded: answer?.pointsAwarded ?? (q.type === 'mcq' && answer?.value === q.correctAnswer ? q.points : 0),
+                    pointsAwarded: initialPoints,
                 }
             })
             form.reset({ answers: answerFields });
@@ -130,20 +142,40 @@ export default function Grader({ testId, submissionId }: GraderProps) {
 
     const renderGrader = (question: Question, index: number) => {
         const studentAnswerValue = getStudentAnswerValue(question.id);
-        const isMCQ = question.type === 'mcq';
 
-        if (isMCQ) {
+        if (question.type === 'mcq') {
             const studentAnswerOption = question.options?.find(o => o.id === studentAnswerValue);
-            const isCorrect = studentAnswerValue === question.correctAnswer;
+            const correctAnswerOption = question.options?.find(o => o.id === question.correctAnswer);
             return (
-                <div>
-                    <p className="font-semibold text-muted-foreground">Student's Answer:</p>
-                    <div className={`mt-2 rounded-md border p-3 ${isCorrect ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10'}`}>
-                        <p className="flex items-center">
-                            {isCorrect ? <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> : <XCircle className="mr-2 h-5 w-5 text-red-500" />}
-                            {studentAnswerOption?.text || <span className="italic text-muted-foreground">No answer</span>}
-                        </p>
+                 <div>
+                    <div className="space-y-3">
+                        <div>
+                            <p className="font-semibold text-muted-foreground">Student's Answer:</p>
+                            <p className="mt-2 rounded-md border bg-muted/30 p-3">{studentAnswerOption?.text || <span className="italic text-muted-foreground">No answer</span>}</p>
+                        </div>
+                         {correctAnswerOption && (
+                            <Alert className="border-primary/50 bg-primary/5">
+                                <Lightbulb className="h-4 w-4 text-primary" />
+                                <AlertTitle className="text-primary">Correct Answer</AlertTitle>
+                                <AlertDescription>
+                                    {correctAnswerOption.text}
+                                </AlertDescription>
+                            </Alert>
+                        )}
                     </div>
+                     <FormField
+                        control={form.control}
+                        name={`answers.${index}.pointsAwarded`}
+                        render={({ field }) => (
+                            <FormItem className="mt-4">
+                                <FormLabel>Awarded Points</FormLabel>
+                                <FormControl>
+                                    <Input type="number" {...field} max={question.points} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
             )
         }
@@ -231,3 +263,5 @@ export default function Grader({ testId, submissionId }: GraderProps) {
         </div>
     );
 }
+
+    

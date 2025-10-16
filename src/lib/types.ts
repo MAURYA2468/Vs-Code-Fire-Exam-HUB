@@ -1,3 +1,4 @@
+
 export type UserRole = 'teacher' | 'student';
 
 export interface User {
@@ -56,7 +57,9 @@ export interface Submission {
   answers: Answer[];
   submittedAt: string;
   attemptNumber: number;
-  score?: number; // Auto-calculated for MCQs
-  gradedScore?: number; // Manually calculated score
+  score?: number; // No longer used for final score, but kept for potential data analysis.
+  gradedScore?: number; // Manually calculated score by teacher. This is the source of truth.
   leaveCount?: number;
 }
+
+    
