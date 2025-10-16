@@ -6,7 +6,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 export const metadata: Metadata = {
-  title: 'Exam HUB',
+  title: 'Exam Hub',
   description: 'Create and take exams seamlessly.',
 };
 

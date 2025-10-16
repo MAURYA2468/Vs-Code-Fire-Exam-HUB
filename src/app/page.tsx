@@ -14,7 +14,7 @@ const Header = () => (
       <div className="rounded-lg bg-primary p-2">
         <GraduationCap className="h-6 w-6 text-primary-foreground" />
       </div>
-      <span className="font-headline">Prepnepal</span>
+      <span className="font-headline">Exam Hub</span>
     </Link>
     <nav className="hidden items-center gap-6 md:flex">
       <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Home</Link>
@@ -68,8 +68,8 @@ const Footer = () => (
   <footer className="bg-card/50 py-12">
     <div className="container mx-auto grid grid-cols-1 gap-8 text-center md:grid-cols-4 md:text-left">
       <div>
-        <h3 className="font-semibold text-foreground">Prepnepal</h3>
-        <p className="mt-2 text-sm text-muted-foreground">© 2024 Prepnepal. All rights reserved.</p>
+        <h3 className="font-semibold text-foreground">Exam Hub</h3>
+        <p className="mt-2 text-sm text-muted-foreground">© 2024 Exam Hub. All rights reserved.</p>
       </div>
       <div>
         <h3 className="font-semibold text-foreground">Navigation</h3>
@@ -117,7 +117,7 @@ export default function Home() {
           <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
             <div className="max-w-lg">
               <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-                Welcome to <span className="text-primary">Prepnepal</span>. Prepare with confidence.
+                Welcome to <span className="text-primary">Exam Hub</span>. Prepare with confidence.
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
                 Excel every exam with our high yield MCQ's.
@@ -273,5 +273,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
