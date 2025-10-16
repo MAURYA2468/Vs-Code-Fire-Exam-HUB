@@ -41,6 +41,42 @@
       "description": "An illustration related to education and learning.",
       "imageUrl": "https://picsum.photos/seed/auth-hero/600/600",
       "imageHint": "education learning"
+    },
+    {
+      "id": "course-thumbnail",
+      "description": "Thumbnail for a physics course.",
+      "imageUrl": "https://picsum.photos/seed/physics-course/600/400",
+      "imageHint": "physics classroom"
+    },
+    {
+      "id": "liam-johnson",
+      "description": "Avatar for Liam Johnson",
+      "imageUrl": "https://picsum.photos/seed/liam-j/40/40",
+      "imageHint": "man face"
+    },
+    {
+      "id": "olivia-smith",
+      "description": "Avatar for Olivia Smith",
+      "imageUrl": "https://picsum.photos/seed/olivia-s/40/40",
+      "imageHint": "woman face"
+    },
+    {
+      "id": "noah-williams",
+      "description": "Avatar for Noah Williams",
+      "imageUrl": "https://picsum.photos/seed/noah-w/40/40",
+      "imageHint": "person face"
+    },
+    {
+      "id": "emma-brown",
+      "description": "Avatar for Emma Brown",
+      "imageUrl": "https://picsum.photos/seed/emma-b/40/40",
+      "imageHint": "woman face portrait"
+    },
+    {
+      "id": "ava-jones",
+      "description": "Avatar for Ava Jones",
+      "imageUrl": "https://picsum.photos/seed/ava-j/40/40",
+      "imageHint": "person portrait"
     }
   ]
 }
