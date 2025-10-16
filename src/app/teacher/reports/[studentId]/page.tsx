@@ -7,9 +7,8 @@ import { useEffect, useState } from "react";
 
 const USERS_STORAGE_KEY = "exam-hub-users";
 
-export default function StudentReportPage({ params }: { params: { studentId: string } }) {
+export default function StudentReportPage({ params: { studentId } }: { params: { studentId: string } }) {
     const [student, setStudent] = useState<User | null>(null);
-    const { studentId } = params;
 
     useEffect(() => {
         if (studentId) {
