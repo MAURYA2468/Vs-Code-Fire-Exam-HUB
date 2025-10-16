@@ -7,6 +7,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FlaskConical, HelpCircle, BarChart, GraduationCap } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const Header = () => (
   <header className="container mx-auto flex items-center justify-between py-4">
@@ -24,8 +30,32 @@ const Header = () => (
       <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Contact Us</Link>
     </nav>
     <div className="flex items-center gap-2">
-      <Button variant="ghost" asChild><Link href="/login/student">Sign In</Link></Button>
-      <Button asChild><Link href="/signup/student">Sign Up</Link></Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">Sign In</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild>
+            <Link href="/login/student">Student</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/login/teacher">Teacher</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button>Sign Up</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild>
+            <Link href="/signup/student">Student</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/signup/teacher">Teacher</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   </header>
 );
