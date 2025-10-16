@@ -18,13 +18,7 @@ export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'about-us-hero');
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-white font-sans">
-      <div className="absolute left-0 top-0 h-full w-full">
-        <div className="absolute -top-[10%] left-0 h-1/2 w-full -skew-y-6 transform" style={{ background: 'linear-gradient(to right, #e0f2e0, #c8e6c9)' }}></div>
-        <div className="absolute bottom-0 left-0 h-1/2 w-full" style={{ background: 'linear-gradient(to right, #f1f8e9, #e8f5e9)' }}></div>
-        <div className="absolute right-0 top-0 h-full w-2/5 rounded-bl-full" style={{ background: 'linear-gradient(to bottom, #dcedc8, #c8e6c9)' }}></div>
-      </div>
-
+    <div className="relative min-h-screen w-full overflow-hidden font-sans">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <header className="flex h-24 items-center justify-between">
           <Logo />
