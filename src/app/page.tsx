@@ -4,8 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Search } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import Logo from '@/components/Logo';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'online-test-hero');
@@ -28,8 +34,24 @@ export default function Home() {
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">NEWS</Link>
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">CONTACT</Link>
           </nav>
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <Search className="h-6 w-6 text-gray-500" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <User className="h-6 w-6 text-gray-500" />
+                  <span className="sr-only">Login</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/login/student">Student Login</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/login/teacher">Teacher Login</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
