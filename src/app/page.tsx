@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'online-test-hero');
+  const heroImage = PlaceHolderImages.find(p => p.id === 'about-us-hero');
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-white font-sans">
@@ -69,17 +69,17 @@ export default function Home() {
         <main className="mt-10 lg:mt-20">
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
             <div className="pb-12">
-              <p className="text-lg font-semibold text-primary">Campaign Landing Page</p>
-              <h1 className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Online Test</h1>
+              <h1 className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Welcome to Exam Hub The Future of Online Assessment</h1>
               <div className="mt-4 h-1 w-20 bg-primary"></div>
               <p className="mt-6 text-base text-gray-600">
-                Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod
-                dunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud
-                exerci tation ullamcorper suscipit.
+                At Exam Hub, we are dedicated to revolutionizing the way assessments are conducted and taken. Our platform is meticulously designed for educational institutions, corporate bodies, and individual learners who seek a seamless, secure, and efficient online testing experience.
               </p>
-              <div className="mt-8">
-                <Button size="lg" className="rounded-full bg-primary px-8 py-3 text-base font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-primary/90">
-                  EXPLORE
+              <div className="mt-8 flex gap-4">
+                <Button size="lg" variant="outline" className="rounded-full border-primary text-primary px-8 py-3 text-base font-semibold shadow-lg transition-transform hover:scale-105 hover:bg-primary/10">
+                  READ MORE
+                </Button>
+                 <Button size="lg" className="rounded-full bg-primary px-8 py-3 text-base font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-primary/90">
+                  GET STARTED
                 </Button>
               </div>
             </div>

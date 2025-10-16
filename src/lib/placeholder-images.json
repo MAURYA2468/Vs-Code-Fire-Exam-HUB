@@ -7,10 +7,10 @@
       "imageHint": "education technology abstract"
     },
     {
-      "id": "online-test-hero",
-      "description": "Illustration of an online test setup with a computer, clock, and books.",
-      "imageUrl": "https://picsum.photos/seed/online-test/600/400",
-      "imageHint": "online test illustration"
+      "id": "about-us-hero",
+      "description": "A diverse group of people collaborating around a table.",
+      "imageUrl": "https://picsum.photos/seed/about-us-hero/600/400",
+      "imageHint": "team collaboration"
     },
     {
       "id": "team-avatar-1",
