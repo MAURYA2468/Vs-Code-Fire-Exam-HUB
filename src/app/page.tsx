@@ -23,8 +23,8 @@ export default function Home() {
         <header className="flex h-24 items-center justify-between">
           <Logo />
           <nav className="hidden items-center space-x-8 md:flex">
-            <Link href="#" className="border-b-2 border-primary text-sm font-semibold text-primary">HOME</Link>
-            <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">ABOUT US</Link>
+            <Link href="/" className="border-b-2 border-primary text-sm font-semibold text-primary">HOME</Link>
+            <Link href="/about" className="text-sm font-medium text-gray-500 hover:text-primary">ABOUT US</Link>
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">OUR CAMPAIGN</Link>
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">NEWS</Link>
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">CONTACT</Link>
