@@ -1,6 +1,7 @@
 import Logo from "@/components/Logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Image from 'next/image';
+import Link from "next/link";
 
 export default function AuthLayout({
   children,
@@ -25,7 +26,9 @@ export default function AuthLayout({
         </div>
         <div className="flex flex-col items-center justify-center p-8">
             <div className="mb-8">
-              <Logo />
+              <Link href="/">
+                <Logo />
+              </Link>
             </div>
             <main>{children}</main>
         </div>
