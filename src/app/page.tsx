@@ -214,60 +214,6 @@ export default function Home() {
             </div>
         </section>
         
-        {/* Pricing Section */}
-        <section className="bg-card/50 py-20">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold">Fair & Simple Pricing For All</h2>
-             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                We don't like to brag, but we don't mind letting our students do it for us.
-            </p>
-            <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-              <Card className="bg-background/50 text-left">
-                <CardHeader>
-                  <CardTitle className="text-primary">Rs. 100</CardTitle>
-                  <p className="font-semibold">Physiology Test</p>
-                  <p className="text-sm text-muted-foreground">Loksewa</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">We don't like to brag, but we don't mind letting our students do it for us. Here are a few nice things folks have said about our services over the years.</p>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline">Buy Now</Button>
-                </CardFooter>
-              </Card>
-              <Card className="bg-background/50 text-left">
-                <CardHeader>
-                  <CardTitle className="text-primary">Rs. 100</CardTitle>
-                  <p className="font-semibold">Pathology Test</p>
-                  <p className="text-sm text-muted-foreground">NMCLE</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">We don't like to brag, but we don't mind letting our students do it for us. Here are a few nice things folks have said about our services over the years.</p>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline">Buy Now</Button>
-                </CardFooter>
-              </Card>
-               <Card className="bg-background/50 text-left">
-                <CardHeader>
-                  <CardTitle className="text-primary">Rs. 100</CardTitle>
-                  <p className="font-semibold">Cardiology Test</p>
-                  <p className="text-sm text-muted-foreground">MD/MS</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">We don't like to brag, but we don't mind letting our students do it for us. Here are a few nice things folks have said about our services over the years.</p>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline">Buy Now</Button>
-                </CardFooter>
-              </Card>
-            </div>
-            <div className="mt-8">
-              <Button>View All Packages</Button>
-            </div>
-          </div>
-        </section>
-
       </main>
       <Footer />
     </div>
