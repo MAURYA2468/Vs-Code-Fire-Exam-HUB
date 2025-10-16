@@ -10,14 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Trash2, XCircle } from "lucide-react";
+import { PlusCircle, Trash2, XCircle, FileText, BarChart, Clock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/use-auth";
 import { Test } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
+import { Badge } from "../ui/badge";
 
 const optionSchema = z.object({
   id: z.string(),
@@ -29,6 +30,10 @@ const questionSchema = z.object({
   type: z.enum(["mcq", "short-answer", "essay"]),
   text: z.string().min(1, "Question text cannot be empty"),
   points: z.coerce.number().min(1, "Points must be at least 1"),
+  difficulty: z.enum(['Easy', 'Medium', 'Hard']),
+  category: z.string().min(1, "Category is required"),
+  negativeMarks: z.coerce.number().optional(),
+  explanation: z.string().optional(),
   options: z.array(optionSchema).optional(),
   correctAnswer: z.string().optional(),
 });
@@ -59,6 +64,39 @@ const TESTS_STORAGE_KEY = "exam-hub-tests";
 interface TestBuilderProps {
     existingTest?: Test | null;
 }
+
+const QuizSummary = ({ form }: { form: any }) => {
+    const questions = form.watch('questions');
+    const totalQuestions = questions.length;
+    const totalMarks = questions.reduce((acc: number, q: any) => acc + (q.points || 0), 0);
+    const duration = form.watch('duration');
+
+    return (
+        <Card className="bg-card/50">
+            <CardHeader>
+                <CardTitle>Quiz Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-around">
+                <div className="text-center">
+                    <FileText className="mx-auto mb-2 h-8 w-8 text-primary" />
+                    <p className="text-2xl font-bold">{totalQuestions}</p>
+                    <p className="text-muted-foreground">Questions</p>
+                </div>
+                <div className="text-center">
+                    <BarChart className="mx-auto mb-2 h-8 w-8 text-primary" />
+                    <p className="text-2xl font-bold">{totalMarks}</p>
+                    <p className="text-muted-foreground">Total Marks</p>
+                </div>
+                 <div className="text-center">
+                    <Clock className="mx-auto mb-2 h-8 w-8 text-primary" />
+                    <p className="text-2xl font-bold">{duration || 0}</p>
+                    <p className="text-muted-foreground">Minutes</p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
 
 export default function TestBuilder({ existingTest }: TestBuilderProps) {
     const { user } = useAuth();
@@ -138,6 +176,10 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
             type,
             text: "",
             points: 10,
+            difficulty: 'Medium',
+            category: '',
+            negativeMarks: 0,
+            explanation: '',
             options: type === "mcq" ? [{id: crypto.randomUUID(), text: ""}, {id: crypto.randomUUID(), text: ""}] : [],
             correctAnswer: type === "mcq" ? "" : undefined,
         });
@@ -146,6 +188,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                 <QuizSummary form={form} />
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <FormField name="title" control={form.control} render={({ field }) => (
                         <FormItem>
@@ -236,9 +279,9 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                 </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <FormField name={`questions.${index}.type`} control={form.control} render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     <FormField name={`questions.${index}.type`} control={form.control} render={({ field }) => (
+                        <FormItem>
                             <FormLabel>Type</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
@@ -251,10 +294,40 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                             <FormMessage />
                         </FormItem>
                     )} />
-                    <FormField name={`questions.${index}.points`} control={form.control} render={({ field }) => (
-                        <FormItem className="md:col-span-1">
+                     <FormField name={`questions.${index}.points`} control={form.control} render={({ field }) => (
+                        <FormItem>
                             <FormLabel>Points</FormLabel>
                             <FormControl><Input type="number" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField name={`questions.${index}.negativeMarks`} control={form.control} render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Negative Marks</FormLabel>
+                            <FormControl><Input type="number" placeholder="e.g., 0.25" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField name={`questions.${index}.difficulty`} control={form.control} render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Difficulty</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Easy">Easy</SelectItem>
+                                    <SelectItem value="Medium">Medium</SelectItem>
+                                    <SelectItem value="Hard">Hard</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField name={`questions.${index}.category`} control={form.control} render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Category/Topic</FormLabel>
+                            <FormControl><Input placeholder="e.g., Algebra" {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -282,7 +355,9 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                                 const optionId = (option as any).id;
                                                 return (
                                                 <div key={optionId} className="flex items-center gap-2 space-y-0">
-                                                    <RadioGroupItem value={optionId} id={optionId} />
+                                                    <FormControl>
+                                                        <RadioGroupItem value={optionId} id={optionId} />
+                                                    </FormControl>
                                                     <Label htmlFor={optionId} className="w-full">
                                                         <FormField
                                                             control={form.control}
@@ -313,10 +388,15 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                         </Button>
                     </div>
                 )}
+                 <FormField name={`questions.${index}.explanation`} control={form.control} render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Explanation (Optional)</FormLabel>
+                         <FormDescription>This will be shown to the student after they complete the test.</FormDescription>
+                        <FormControl><Textarea placeholder="Explain why the correct answer is right." {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
             </CardContent>
         </Card>
     );
 }
-
-
-    

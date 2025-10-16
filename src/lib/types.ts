@@ -11,6 +11,7 @@ export interface User {
 }
 
 export type QuestionType = 'mcq' | 'short-answer' | 'essay';
+export type QuestionDifficulty = 'Easy' | 'Medium' | 'Hard';
 
 export interface MCQOption {
   id: string;
@@ -22,8 +23,12 @@ export interface Question {
   type: QuestionType;
   text: string;
   points: number;
+  difficulty: QuestionDifficulty;
+  category: string;
+  negativeMarks?: number;
+  explanation?: string;
   options?: MCQOption[];
-  correctAnswer?: string; // For MCQ, stores option id. For others, stores the answer text.
+  correctAnswer?: string; // For MCQ, stores option id.
 }
 
 export interface Test {

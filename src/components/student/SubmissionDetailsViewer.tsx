@@ -6,11 +6,12 @@ import { Submission, Test, User, Question } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle, AlertTriangle, RefreshCw, Lightbulb } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -181,6 +182,15 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
                         <CardContent>
                             <Separator className="mb-4" />
                             {renderAnswer(question)}
+                             {question.explanation && (
+                                <Alert className="mt-4 border-primary/50 bg-primary/5">
+                                    <Lightbulb className="h-4 w-4 text-primary" />
+                                    <AlertTitle className="text-primary">Explanation</AlertTitle>
+                                    <AlertDescription>
+                                        {question.explanation}
+                                    </AlertDescription>
+                                </Alert>
+                            )}
                         </CardContent>
                     </Card>
                 ))}
