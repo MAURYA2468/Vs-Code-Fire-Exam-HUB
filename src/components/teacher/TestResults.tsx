@@ -20,6 +20,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "../ui/input";
 
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
@@ -40,6 +41,10 @@ type StudentGroup = {
   latestScore: number;
   averageScore: number;
 }
+
+type SortKey = 'studentName' | 'bestScore' | 'latestScore' | 'averageScore';
+type SortDirection = 'asc' | 'desc';
+
 
 type QuestionStats = {
   question: Question;
@@ -63,7 +68,7 @@ const QuestionAnalytics = ({ test, submissions }: { test: Test, submissions: Enr
                 if (!answer || !answer.value) {
                     unanswered++;
                 } else if (q.type === 'mcq') {
-                    if (answer.value === q.correctAnswer) {
+                    if (answer.pointsAwarded && answer.pointsAwarded > 0) {
                         correct++;
                     } else {
                         incorrect++;
@@ -123,6 +128,9 @@ export default function TestResults({ testId }: { testId: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [key, setKey] = useState(0); // Used to force re-render
   const [allSubmissions, setAllSubmissions] = useState<EnrichedSubmission[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("bestScore");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
 
   useEffect(() => {
@@ -179,9 +187,16 @@ export default function TestResults({ testId }: { testId: string }) {
 
       Object.values(groups).forEach(group => {
         group.submissions.sort((a,b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
-        group.bestScore = Math.max(...group.submissions.map(s => s.finalScore));
-        group.latestScore = group.submissions[0]?.finalScore ?? 0;
-        group.averageScore = group.submissions.reduce((acc, s) => acc + s.finalScore, 0) / group.submissions.length;
+        const gradedSubmissions = group.submissions.filter(s => s.isGraded);
+        if (gradedSubmissions.length > 0) {
+            group.bestScore = Math.max(...gradedSubmissions.map(s => s.finalScore));
+            group.latestScore = gradedSubmissions[0]?.finalScore ?? 0;
+            group.averageScore = gradedSubmissions.reduce((acc, s) => acc + s.finalScore, 0) / gradedSubmissions.length;
+        } else {
+            group.bestScore = 0;
+            group.latestScore = 0;
+            group.averageScore = 0;
+        }
       });
       
       setStudentGroups(Object.values(groups));
@@ -189,6 +204,34 @@ export default function TestResults({ testId }: { testId: string }) {
     
     setIsLoading(false);
   }, [testId, key]);
+
+  const sortedAndFilteredStudentGroups = useMemo(() => {
+    return studentGroups
+        .filter(group => {
+            const student = group.student;
+            const term = searchTerm.toLowerCase();
+            return student.name.toLowerCase().includes(term) || student.registerNumber?.toLowerCase().includes(term);
+        })
+        .sort((a, b) => {
+            let aValue, bValue;
+            if (sortKey === 'studentName') {
+                aValue = a.student.name;
+                bValue = b.student.name;
+            } else {
+                aValue = a[sortKey];
+                bValue = b[sortKey];
+            }
+
+            let comparison = 0;
+            if (aValue > bValue) {
+                comparison = 1;
+            } else if (aValue < bValue) {
+                comparison = -1;
+            }
+
+            return sortDirection === 'asc' ? comparison : -comparison;
+        });
+  }, [studentGroups, searchTerm, sortKey, sortDirection]);
 
   const resetStudentAttempts = (studentId: string) => {
     const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
@@ -303,17 +346,57 @@ export default function TestResults({ testId }: { testId: string }) {
 
       <Card className="bg-card/70 mt-8">
         <CardHeader>
-            <CardTitle>Student Submissions</CardTitle>
-            <CardDescription>
-                Review submissions from all students. Expand to see attempt history.
-            </CardDescription>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <CardTitle>Student Submissions</CardTitle>
+                    <CardDescription>
+                        Review submissions from all students. Expand to see attempt history.
+                    </CardDescription>
+                </div>
+                 <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                    <Input 
+                        placeholder="Search by name or number..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="max-w-sm"
+                    />
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                        <Label htmlFor="sort-by">Sort By</Label>
+                        <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
+                            <SelectTrigger id="sort-by" className="w-[180px]">
+                            <SelectValue placeholder="Sort by..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="studentName">Student Name</SelectItem>
+                                <SelectItem value="bestScore">Best Score</SelectItem>
+                                <SelectItem value="latestScore">Latest Score</SelectItem>
+                                <SelectItem value="averageScore">Average Score</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                        <Label htmlFor="sort-dir">Order</Label>
+                        <Select value={sortDirection} onValueChange={(value) => setSortDirection(value as SortDirection)}>
+                            <SelectTrigger id="sort-dir" className="w-[120px]">
+                            <SelectValue placeholder="Order..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                            <SelectItem value="asc">Ascending</SelectItem>
+                            <SelectItem value="desc">Descending</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </CardHeader>
         <CardContent>
             {studentGroups.length === 0 ? (
                  <div className="h-24 text-center content-center text-muted-foreground">No submissions yet.</div>
             ) : (
                 <Accordion type="single" collapsible className="w-full">
-                    {studentGroups.sort((a,b) => b.bestScore - a.bestScore).map((group) => (
+                    {sortedAndFilteredStudentGroups.map((group) => (
                         <AccordionItem value={group.student.id} key={group.student.id}>
                             <AccordionTrigger className="hover:no-underline">
                                 <div className="flex w-full items-center justify-between pr-4">
@@ -402,3 +485,5 @@ export default function TestResults({ testId }: { testId: string }) {
     </div>
   );
 }
+
+    
