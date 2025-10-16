@@ -5,11 +5,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { Submission, Test } from "@/lib/types";
 import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Trophy, Clock, ListOrdered, Percent, ArrowRight, Star } from "lucide-react";
+import { Trophy, Clock, ListOrdered, Percent, ArrowRight, Star, TrendingUp } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -19,6 +22,79 @@ type GroupedResults = {
   submissions: (Submission & { percentage: number | null, finalScore: number })[];
   bestSubmission: (Submission & { percentage: number | null, finalScore: number }) | null;
 };
+
+const chartConfig = {
+  score: {
+    label: "Score",
+    color: "hsl(var(--primary))",
+  },
+};
+
+const StudentProgressChart = ({ results }: { results: GroupedResults[] }) => {
+    const chartData = useMemo(() => {
+        if (!results || results.length === 0) return [];
+        
+        const dataPoints = results
+            .filter(r => r.bestSubmission)
+            .map(r => ({
+                date: parseISO(r.bestSubmission!.submittedAt),
+                testTitle: r.test.title,
+                score: r.bestSubmission!.percentage ?? 0
+            }));
+            
+        return dataPoints.sort((a,b) => a.date.getTime() - b.date.getTime());
+    }, [results]);
+
+    if (chartData.length === 0) return null;
+
+    return (
+         <Card className="bg-card/70 backdrop-blur-sm">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><TrendingUp /> Progress Over Time</CardTitle>
+                <CardDescription>Your best percentage score on each test you've taken.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                    <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                            dataKey="date" 
+                            tickFormatter={(tick) => format(tick, 'MMM d')}
+                            tickLine={false}
+                            axisLine={false}
+                        />
+                        <YAxis 
+                            tickFormatter={(tick) => `${tick}%`}
+                             tickLine={false}
+                            axisLine={false}
+                        />
+                        <ChartTooltip
+                            content={({ active, payload, label }) =>
+                                active && payload && payload.length ? (
+                                <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                    <div className="grid grid-cols-1 gap-1.5">
+                                        <span className="text-sm text-muted-foreground">{format(label, "PPP")}</span>
+                                        {payload.map((item, index) => (
+                                        <div key={index} className="flex items-center gap-2">
+                                            <div className="flex flex-col">
+                                                <span className="font-semibold">{item.payload.testTitle}</span>
+                                                <span className="font-semibold text-primary">{item.value?.toFixed(1)}%</span>
+                                            </div>
+                                        </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                ) : null
+                            }
+                            />
+                        <Line type="monotone" dataKey="score" stroke="var(--color-score)" strokeWidth={2} dot={true} />
+                    </LineChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    )
+}
+
 
 export default function StudentResultsPage() {
   const { user } = useAuth();
@@ -94,6 +170,8 @@ export default function StudentResultsPage() {
         </div>
       ) : (
         <div className="space-y-8">
+          <StudentProgressChart results={groupedResults} />
+
           {groupedResults.map(({test, submissions, bestSubmission}) => (
             <Card key={test.id} className="bg-card/70 backdrop-blur-sm">
                 <CardHeader>

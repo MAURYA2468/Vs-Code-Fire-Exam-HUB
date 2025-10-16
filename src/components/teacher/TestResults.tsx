@@ -2,12 +2,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Submission, Test, User } from "@/lib/types";
+import { Submission, Test, User, Question } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, Users, FileText, BarChart2, Eye, Edit, AlertTriangle, RefreshCw } from "lucide-react";
+import { Loader2, Users, FileText, BarChart2, Eye, Edit, AlertTriangle, RefreshCw, ChevronsUp, ChevronsDown, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -41,12 +41,89 @@ type StudentGroup = {
   averageScore: number;
 }
 
+type QuestionStats = {
+  question: Question;
+  correct: number;
+  incorrect: number;
+  unanswered: number;
+  accuracy: number;
+}
+
+const QuestionAnalytics = ({ test, submissions }: { test: Test, submissions: EnrichedSubmission[] }) => {
+    const questionStats: QuestionStats[] = useMemo(() => {
+        if (!test || submissions.length === 0) return [];
+
+        return test.questions.map(q => {
+            let correct = 0;
+            let incorrect = 0;
+            let unanswered = 0;
+
+            submissions.forEach(sub => {
+                const answer = sub.answers.find(a => a.questionId === q.id);
+                if (!answer || !answer.value) {
+                    unanswered++;
+                } else if (q.type === 'mcq') {
+                    if (answer.value === q.correctAnswer) {
+                        correct++;
+                    } else {
+                        incorrect++;
+                    }
+                }
+                // For other types, we can't auto-determine correctness here.
+            });
+            const totalAnswered = correct + incorrect;
+            const accuracy = totalAnswered > 0 ? (correct / totalAnswered) * 100 : 0;
+            return { question: q, correct, incorrect, unanswered, accuracy };
+        });
+    }, [test, submissions]);
+
+    return (
+        <Card className="bg-card/70">
+            <CardHeader>
+                <CardTitle>Question-wise Analysis</CardTitle>
+                <CardDescription>Performance breakdown for each question across all submissions.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Question</TableHead>
+                            <TableHead className="text-center">Accuracy</TableHead>
+                            <TableHead className="text-center">Correct</TableHead>
+                            <TableHead className="text-center">Incorrect</TableHead>
+                            <TableHead className="text-center">Unanswered</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {questionStats.map(stat => (
+                            <TableRow key={stat.question.id}>
+                                <TableCell className="max-w-xs truncate">{stat.question.text}</TableCell>
+                                <TableCell className="text-center">
+                                    <Badge variant={stat.accuracy > 75 ? "default" : stat.accuracy > 50 ? "secondary" : "destructive"}>
+                                        {stat.question.type === 'mcq' ? `${stat.accuracy.toFixed(1)}%` : 'N/A'}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="text-center font-medium text-green-600">{stat.correct}</TableCell>
+                                <TableCell className="text-center font-medium text-red-600">{stat.incorrect}</TableCell>
+                                <TableCell className="text-center font-medium text-muted-foreground">{stat.unanswered}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
+};
+
+
 export default function TestResults({ testId }: { testId: string }) {
   const { toast } = useToast();
   const [test, setTest] = useState<Test | null>(null);
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [key, setKey] = useState(0); // Used to force re-render
+  const [allSubmissions, setAllSubmissions] = useState<EnrichedSubmission[]>([]);
+
 
   useEffect(() => {
     if (!testId) {
@@ -67,10 +144,24 @@ export default function TestResults({ testId }: { testId: string }) {
       const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
 
       const totalPoints = foundTest.questions.reduce((sum, q) => sum + q.points, 0);
+      
+      const enrichedSubs: EnrichedSubmission[] = testSubmissions.map(sub => {
+          const student = allUsers.find(u => u.id === sub.studentId);
+          const finalScore = sub.gradedScore ?? sub.score ?? 0;
+          const percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
+          return {
+              ...sub,
+              studentName: student?.name ?? 'Unknown Student',
+              percentage,
+              finalScore,
+              isGraded: sub.gradedScore !== undefined,
+          };
+      });
+      setAllSubmissions(enrichedSubs);
 
       const groups: Record<string, StudentGroup> = {};
 
-      for(const sub of testSubmissions) {
+      for(const sub of enrichedSubs) {
         if (!groups[sub.studentId]) {
           const student = allUsers.find(u => u.id === sub.studentId);
           if (!student) continue;
@@ -83,17 +174,7 @@ export default function TestResults({ testId }: { testId: string }) {
             averageScore: 0
           }
         }
-
-        const finalScore = sub.gradedScore ?? sub.score ?? 0;
-        const percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
-        
-        groups[sub.studentId].submissions.push({
-          ...sub,
-          studentName: groups[sub.studentId].student.name,
-          percentage,
-          finalScore,
-          isGraded: sub.gradedScore !== undefined,
-        });
+        groups[sub.studentId].submissions.push(sub);
       }
 
       Object.values(groups).forEach(group => {
@@ -126,6 +207,34 @@ export default function TestResults({ testId }: { testId: string }) {
   };
   
 
+  const analytics = useMemo(() => {
+    if (studentGroups.length === 0) {
+      return {
+        totalSubmissionsCount: 0,
+        averageScoreAll: 0,
+        averagePercentageAll: 0,
+        highestScore: 0,
+        lowestScore: 0,
+      };
+    }
+    
+    const totalPoints = test?.questions.reduce((sum, q) => sum + q.points, 0) ?? 0;
+    const allBestScores = studentGroups.map(g => g.bestScore);
+    const averageScoreAll = studentGroups.reduce((sum, group) => sum + group.averageScore, 0) / studentGroups.length;
+    const averagePercentageAll = totalPoints > 0 ? (averageScoreAll / totalPoints) * 100 : 0;
+    const highestScore = Math.max(...allBestScores);
+    const lowestScore = Math.min(...allBestScores);
+
+    return {
+      totalSubmissionsCount: allSubmissions.length,
+      averageScoreAll: averageScoreAll,
+      averagePercentageAll,
+      highestScore,
+      lowestScore,
+    }
+  }, [studentGroups, test, allSubmissions]);
+
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
@@ -134,10 +243,7 @@ export default function TestResults({ testId }: { testId: string }) {
     return <div className="text-center text-destructive">Test not found.</div>;
   }
 
-  const totalSubmissionsCount = studentGroups.reduce((acc, group) => acc + group.submissions.length, 0);
   const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
-  const averageScoreAll = studentGroups.length > 0 ? studentGroups.reduce((sum, group) => sum + group.averageScore, 0) / studentGroups.length : 0;
-  const averagePercentageAll = totalPoints > 0 ? (averageScoreAll / totalPoints) * 100 : 0;
   const needsManualGrading = test.questions.some(q => q.type !== 'mcq');
 
 
@@ -150,14 +256,14 @@ export default function TestResults({ testId }: { testId: string }) {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <Card className="bg-card/70">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{totalSubmissionsCount}</div>
+                <div className="text-2xl font-bold">{analytics.totalSubmissionsCount}</div>
                  <p className="text-xs text-muted-foreground">from {studentGroups.length} students</p>
             </CardContent>
         </Card>
@@ -167,23 +273,35 @@ export default function TestResults({ testId }: { testId: string }) {
                 <BarChart2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{averageScoreAll.toFixed(1)} / {totalPoints} ({averagePercentageAll.toFixed(1)}%)</div>
+                <div className="text-2xl font-bold">{analytics.averageScoreAll.toFixed(1)} / {totalPoints} ({analytics.averagePercentageAll.toFixed(1)}%)</div>
                  <p className="text-xs text-muted-foreground">Based on student's average scores</p>
+            </CardContent>
+        </Card>
+        <Card className="bg-card/70">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Highest Score</CardTitle>
+                <ChevronsUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{analytics.highestScore.toFixed(1)} / {totalPoints}</div>
+                 <p className="text-xs text-muted-foreground">&nbsp;</p>
             </CardContent>
         </Card>
          <Card className="bg-card/70">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Lowest Score</CardTitle>
+                <ChevronsDown className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{test.questions.length}</div>
+                <div className="text-2xl font-bold">{analytics.lowestScore.toFixed(1)} / {totalPoints}</div>
                  <p className="text-xs text-muted-foreground">&nbsp;</p>
             </CardContent>
         </Card>
       </div>
 
-      <Card className="bg-card/70">
+       {allSubmissions.length > 0 && <QuestionAnalytics test={test} submissions={allSubmissions} />}
+
+      <Card className="bg-card/70 mt-8">
         <CardHeader>
             <CardTitle>Student Submissions</CardTitle>
             <CardDescription>
