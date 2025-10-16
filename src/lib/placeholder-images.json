@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "examhub-hero",
-      "description": "A woman studying on her laptop on a couch.",
-      "imageUrl": "https://picsum.photos/seed/notesight-hero/600/500",
-      "imageHint": "woman laptop study"
+      "description": "An abstract illustration representing education and technology.",
+      "imageUrl": "https://picsum.photos/seed/examhub-hero/600/600",
+      "imageHint": "education technology abstract"
     },
     {
       "id": "team-avatar-1",
