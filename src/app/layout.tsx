@@ -3,8 +3,6 @@ import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { AnimatedBackground } from '@/components/AnimatedBackground';
-import { HomePageHeader } from '@/components/main/HomePageHeader';
 
 export const metadata: Metadata = {
   title: 'Exam Hub',
@@ -31,9 +29,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <AnimatedBackground />
             <div className="relative z-10 flex min-h-screen flex-col">
-              <HomePageHeader />
               <main className="flex-1">{children}</main>
             </div>
             <Toaster />

@@ -1,10 +1,16 @@
 {
   "placeholderImages": [
     {
-      "id": "examhub-hero",
+      "id": "examhub-hero-reverted",
       "description": "An abstract illustration representing education and technology.",
       "imageUrl": "https://picsum.photos/seed/examhub-hero/600/600",
       "imageHint": "education technology abstract"
+    },
+    {
+      "id": "online-test-hero",
+      "description": "Illustration of an online test setup with a computer, clock, and books.",
+      "imageUrl": "https://picsum.photos/seed/online-test/600/400",
+      "imageHint": "online test illustration"
     },
     {
       "id": "team-avatar-1",
