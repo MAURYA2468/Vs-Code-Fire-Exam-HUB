@@ -23,11 +23,9 @@ const Header = () => (
       <span className="font-headline">Exam Hub</span>
     </Link>
     <nav className="hidden items-center gap-6 md:flex">
-      <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Home</Link>
-      <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Test</Link>
-      <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Courses</Link>
-      <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">About Us</Link>
-      <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Contact Us</Link>
+      <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Home</Link>
+      <Link href="/student/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Student Dashboard</Link>
+      <Link href="/teacher/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Teacher Dashboard</Link>
     </nav>
     <div className="flex items-center gap-2">
       <DropdownMenu>
@@ -104,10 +102,8 @@ const Footer = () => (
       <div>
         <h3 className="font-semibold text-foreground">Navigation</h3>
         <ul className="mt-4 space-y-2">
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">Test</Link></li>
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">Courses</Link></li>
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">About Us</Link></li>
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">Contact Us</Link></li>
+          <li><Link href="/student/dashboard" className="text-sm text-muted-foreground hover:text-primary">Student Dashboard</Link></li>
+          <li><Link href="/teacher/dashboard" className="text-sm text-muted-foreground hover:text-primary">Teacher Dashboard</Link></li>
         </ul>
       </div>
       <div>
