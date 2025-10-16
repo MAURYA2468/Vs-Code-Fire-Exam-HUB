@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -15,8 +16,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescript
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, AlertTriangle, Clock } from "lucide-react";
+import { Loader2, AlertTriangle, Clock, CameraOff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -40,12 +42,47 @@ export default function TestTaker({ testId }: { testId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leaveCount, setLeaveCount] = useState(0);
 
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
 
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slideCount, setSlideCount] = useState(0);
   
   const timerRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast({
+          variant: 'destructive',
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access.',
+        });
+        setHasCameraPermission(false);
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({video: true});
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to continue.',
+        });
+      }
+    };
+
+    getCameraPermission();
+  }, [toast]);
 
   useEffect(() => {
     const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
@@ -72,7 +109,7 @@ export default function TestTaker({ testId }: { testId: string }) {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [test, timeLeft]);
+  }, [test, timeLeft, getValues]);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -169,6 +206,33 @@ export default function TestTaker({ testId }: { testId: string }) {
 
   return (
     <div className="container mx-auto flex flex-col items-center justify-center py-8">
+       <Card className="w-full max-w-sm self-start mb-4 bg-card/70 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle>Proctoring</CardTitle>
+          <CardDescription>Your camera is being monitored.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="relative aspect-video w-full overflow-hidden rounded-md border bg-muted">
+            <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
+            {!hasCameraPermission && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white">
+                <CameraOff className="h-10 w-10" />
+                <p className="mt-2 text-center font-semibold">Camera Access Denied</p>
+              </div>
+            )}
+          </div>
+           {!hasCameraPermission && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Camera Access Required</AlertTitle>
+              <AlertDescription>
+                Please allow camera access. Your test may be invalidated without it.
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+      
       <Card className="w-full max-w-4xl bg-card/70 backdrop-blur-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl">{test.title}</CardTitle>
@@ -292,3 +356,5 @@ export default function TestTaker({ testId }: { testId: string }) {
     </div>
   );
 }
+
+    
