@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/card"
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
@@ -61,11 +64,42 @@ export default function StatisticsChart() {
               strokeWidth={5}
             >
             </Pie>
+            <ChartLegend
+                content={<ChartLegendContent nameKey="stat" />}
+                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <div className="flex-1 p-6 pt-0 text-center text-sm text-muted-foreground">
-        Showing total pass/fail rates for all students.
+       <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="stat"
+              innerRadius={60}
+              strokeWidth={5}
+            >
+            </Pie>
+            <ChartLegend
+                content={<ChartLegendContent nameKey="stat" />}
+                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+            />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+      <div className="flex flex-col gap-2 p-6 pt-0 text-sm">
+        <div className="flex-1 text-center text-muted-foreground">
+            Showing total pass/fail rates for all students.
+        </div>
       </div>
     </Card>
   )
