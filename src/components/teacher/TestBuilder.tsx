@@ -251,22 +251,24 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                             className="space-y-2"
                                         >
                                             {fields.map((option, optionIndex) => (
-                                                 <FormField
-                                                    key={option.id}
-                                                    control={form.control}
-                                                    name={`questions.${index}.options.${optionIndex}.text`}
-                                                    render={({ field: optionField }) => (
-                                                        <FormItem className="flex items-center gap-2 space-y-0">
-                                                            <FormControl>
-                                                                <RadioGroupItem value={option.id} />
-                                                            </FormControl>
-                                                            <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} className="flex-1" />
-                                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} disabled={fields.length <= 2}>
-                                                                <XCircle className="h-4 w-4" />
-                                                            </Button>
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                                <div key={option.id} className="flex items-center gap-2 space-y-0">
+                                                    <RadioGroupItem value={option.id} />
+                                                    <FormField
+                                                        control={form.control}
+                                                        name={`questions.${index}.options.${optionIndex}.text`}
+                                                        render={({ field: optionField }) => (
+                                                            <FormItem className="flex-1">
+                                                                <FormControl>
+                                                                    <Input placeholder={`Option ${optionIndex + 1}`} {...optionField} />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} disabled={fields.length <= 2}>
+                                                        <XCircle className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
                                             ))}
                                         </RadioGroup>
                                     </FormControl>
