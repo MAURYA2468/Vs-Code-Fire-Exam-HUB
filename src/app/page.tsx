@@ -48,7 +48,7 @@ const TestimonialCard = ({ quote, name, avatarId }: { quote: string, name: strin
 
 const Footer = () => (
   <footer className="bg-card/50 py-12">
-    <div className="container mx-auto grid grid-cols-1 gap-8 text-center md:grid-cols-4 md:text-left">
+    <div className="container mx-auto grid grid-cols-1 gap-8 text-center md:grid-cols-3 md:text-left">
       <div>
         <h3 className="font-semibold text-foreground">Exam Hub</h3>
         <p className="mt-2 text-sm text-muted-foreground">© 2024 Exam Hub. All rights reserved.</p>
@@ -60,21 +60,13 @@ const Footer = () => (
           <li><Link href="/teacher/dashboard" className="text-sm text-muted-foreground hover:text-primary">Teacher Dashboard</Link></li>
         </ul>
       </div>
-      <div>
-        <h3 className="font-semibold text-foreground">Resources</h3>
-        <ul className="mt-4 space-y-2">
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">Blogs</Link></li>
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">News and Updates</Link></li>
-          <li><Link href="#" className="text-sm text-muted-foreground hover:text-primary">Career</Link></li>
-        </ul>
-      </div>
       <div className="space-y-4">
         <h3 className="font-semibold text-foreground">Stay up to date</h3>
-        <form className="flex flex-col items-center gap-2 sm:flex-row md:items-start">
+        <div className="flex flex-col items-center gap-2 sm:flex-row md:items-start">
           <Input type="email" placeholder="Your email address" className="flex-1" />
           <Button>Submit</Button>
-        </form>
-        <div className="flex justify-center gap-4 md:justify-start">
+        </div>
+         <div className="flex justify-center gap-4 md:justify-start">
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link>
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Term & Condition</Link>
         </div>
