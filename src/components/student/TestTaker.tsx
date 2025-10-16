@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
-import { Test, Submission, Answer } from "@/lib/types";
+import { Test, Submission, Answer, Question } from "@/lib/types";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -26,6 +26,17 @@ const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
 type FormData = {
   answers: { [questionId: string]: string };
 };
+
+// Fisher-Yates shuffle algorithm
+function shuffleArray<T>(array: T[]): T[] {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
 
 export default function TestTaker({ testId }: { testId: string }) {
   const router = useRouter();
@@ -90,8 +101,19 @@ export default function TestTaker({ testId }: { testId: string }) {
     const foundTest = allTests.find(t => t.id === testId);
 
     if (foundTest) {
-      setTest(foundTest);
-      setTimeLeft(foundTest.duration * 60);
+      // Randomize questions and options for anti-cheating
+      const randomizedTest: Test = {
+        ...foundTest,
+        questions: shuffleArray(foundTest.questions).map((question: Question) => {
+          if (question.type === 'mcq' && question.options) {
+            return { ...question, options: shuffleArray(question.options) };
+          }
+          return question;
+        }),
+      };
+
+      setTest(randomizedTest);
+      setTimeLeft(randomizedTest.duration * 60);
     }
     setIsLoading(false);
   }, [testId]);
@@ -101,15 +123,16 @@ export default function TestTaker({ testId }: { testId: string }) {
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0 && test) {
+    } else if (timeLeft <= 0 && test) {
       if (timerRef.current) clearInterval(timerRef.current);
-      // Auto-submit
-      submitTest(getValues());
+      if (!isSubmitting) {
+        submitTest(getValues());
+      }
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [test, timeLeft, getValues]);
+  }, [test, timeLeft, getValues, isSubmitting]);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -150,7 +173,12 @@ export default function TestTaker({ testId }: { testId: string }) {
 
     // Auto-grade MCQs
     let score = 0;
-    test.questions.forEach(q => {
+    // We need the original, unshuffled test to find the correct answer IDs.
+    const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
+    const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
+    const originalTest = allTests.find(t => t.id === testId);
+
+    originalTest?.questions.forEach(q => {
       if (q.type === 'mcq') {
         const studentAnswer = answers.find(a => a.questionId === q.id);
         if (studentAnswer && studentAnswer.value === q.correctAnswer) {
