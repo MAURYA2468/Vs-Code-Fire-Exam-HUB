@@ -1,62 +1,16 @@
+
+"use client"
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FlaskConical, HelpCircle, BarChart, GraduationCap } from 'lucide-react';
+import { FlaskConical, HelpCircle, BarChart } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { HomePageHeader } from '@/components/main/HomePageHeader';
 
-const Header = () => (
-  <header className="container mx-auto flex items-center justify-between py-4">
-    <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-foreground">
-      <div className="rounded-lg bg-primary p-2">
-        <GraduationCap className="h-6 w-6 text-primary-foreground" />
-      </div>
-      <span className="font-headline">Exam Hub</span>
-    </Link>
-    <nav className="hidden items-center gap-6 md:flex">
-      <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Home</Link>
-      <Link href="/student/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Student Dashboard</Link>
-      <Link href="/teacher/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Teacher Dashboard</Link>
-    </nav>
-    <div className="flex items-center gap-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">Sign In</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem asChild>
-            <Link href="/login/student">Student</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/login/teacher">Teacher</Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button>Sign Up</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem asChild>
-            <Link href="/signup/student">Student</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/signup/teacher">Teacher</Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  </header>
-);
 
 const Stat = ({ value, label, className }: { value: string, label: string, className?: string }) => (
   <div className={cn("absolute rounded-lg border bg-card/80 p-3 text-center shadow-lg backdrop-blur-sm", className)}>
@@ -136,7 +90,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <Header />
+      <HomePageHeader />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="container mx-auto py-12 md:py-24">

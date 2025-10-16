@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -11,12 +12,14 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
-import { LogOut, User as UserIcon, LayoutDashboard, FileText, BarChart, BookCopy } from "lucide-react";
+import { LogOut, User as UserIcon, LayoutDashboard, FileText, BarChart, BookCopy, ShieldAlert } from "lucide-react";
 import Logo from "../Logo";
 import Link from "next/link";
 import { ThemeToggle } from "../ThemeToggle";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 
 const teacherNavItems = [
   { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -34,6 +37,9 @@ export default function AppHeader() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const navItems = user?.role === 'teacher' ? teacherNavItems : studentNavItems;
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const homeHref = user ? `/${user.role}/dashboard` : '/';
 
   const isLinkActive = (href: string) => {
     if (href.endsWith('/dashboard')) {
@@ -53,7 +59,7 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={homeHref} className="flex items-center gap-2">
             <Logo />
         </Link>
         <nav className="hidden items-center gap-4 md:flex">
@@ -115,13 +121,31 @@ export default function AppHeader() {
               ))}
                <DropdownMenuSeparator />
             </div>
-            <DropdownMenuItem onClick={logout}>
+            <DropdownMenuItem onSelect={() => setShowLogoutConfirm(true)}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+       <AlertDialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <ShieldAlert className="text-destructive" /> Are you sure you want to log out?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be returned to the home page and will need to log in again to access your dashboard.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={logout}>
+              Yes, Log Out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 }
