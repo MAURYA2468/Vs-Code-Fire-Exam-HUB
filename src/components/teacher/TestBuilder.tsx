@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 
 const optionSchema = z.object({
   id: z.string(),
@@ -37,6 +38,8 @@ const testSchema = z.object({
   description: z.string().optional(),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute"),
   questions: z.array(questionSchema).min(1, "A test must have at least one question"),
+  accessCode: z.string().optional(),
+  allowRetakes: z.boolean().optional(),
 }).superRefine((data, ctx) => {
     data.questions.forEach((q, index) => {
         if (q.type === "mcq" && (!q.correctAnswer || q.correctAnswer === "")) {
@@ -70,12 +73,17 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
             description: "",
             duration: 30,
             questions: [],
+            accessCode: "",
+            allowRetakes: false,
         },
     });
 
     useEffect(() => {
         if (existingTest) {
-            form.reset(existingTest);
+            form.reset({
+                ...existingTest,
+                allowRetakes: existingTest.allowRetakes ?? false,
+            });
         }
     }, [existingTest, form]);
 
@@ -89,12 +97,17 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
 
         const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
         let allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
+        
+        const finalData = {
+            ...data,
+            accessCode: data.accessCode?.trim() === '' ? undefined : data.accessCode,
+        }
 
         if (isEditMode && existingTest) {
             // Update existing test
             const testIndex = allTests.findIndex(t => t.id === existingTest.id);
             if (testIndex !== -1) {
-                allTests[testIndex] = { ...allTests[testIndex], ...data };
+                allTests[testIndex] = { ...allTests[testIndex], ...finalData };
                 toast({
                     title: "Test Updated!",
                     description: `"${data.title}" has been saved successfully.`,
@@ -106,7 +119,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
                 id: crypto.randomUUID(),
                 teacherId: user.id,
                 createdAt: new Date().toISOString(),
-                ...data,
+                ...finalData,
             };
             allTests.push(newTest);
             toast({
@@ -157,6 +170,33 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
                     )} />
                 </div>
                 
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                     <FormField name="accessCode" control={form.control} render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Access Code (Optional)</FormLabel>
+                            <FormDescription>If set, students must enter this code to start the test.</FormDescription>
+                            <FormControl><Input placeholder="e.g., ALGEBRA101" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                     <FormField name="allowRetakes" control={form.control} render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel>Allow Retakes</FormLabel>
+                                <FormDescription>
+                                    Let students take this test more than once.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )} />
+                </div>
+
                 <div className="space-y-6">
                     <h3 className="text-xl font-semibold">Questions</h3>
                     {fields.map((field, index) => (
@@ -252,7 +292,9 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                         >
                                             {fields.map((option, optionIndex) => (
                                                 <div key={option.id} className="flex items-center gap-2 space-y-0">
-                                                    <RadioGroupItem value={option.id} />
+                                                    <FormControl>
+                                                        <RadioGroupItem value={option.id} id={`${field.name}-${option.id}`} />
+                                                    </FormControl>
                                                     <FormField
                                                         control={form.control}
                                                         name={`questions.${index}.options.${optionIndex}.text`}

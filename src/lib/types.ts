@@ -34,6 +34,8 @@ export interface Test {
   teacherId: string;
   questions: Question[];
   createdAt: string;
+  accessCode?: string;
+  allowRetakes?: boolean;
 }
 
 export interface Answer {
