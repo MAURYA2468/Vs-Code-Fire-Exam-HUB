@@ -40,7 +40,7 @@ export interface Test {
   questions: Question[];
   createdAt: string;
   accessCode?: string;
-  maxAttempts?: number; // 0 or undefined for unlimited
+  maxAttempts?: number; // 0 for unlimited
 }
 
 export interface Answer {

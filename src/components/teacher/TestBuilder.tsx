@@ -16,9 +16,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Test } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Label } from "../ui/label";
-import { Badge } from "../ui/badge";
 
 const optionSchema = z.object({
   id: z.string(),
@@ -120,7 +119,14 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
         if (existingTest) {
             form.reset({
                 ...existingTest,
+                description: existingTest.description ?? "",
+                accessCode: existingTest.accessCode ?? "",
                 maxAttempts: existingTest.maxAttempts ?? 1,
+                questions: existingTest.questions.map(q => ({
+                    ...q,
+                    negativeMarks: q.negativeMarks ?? 0,
+                    explanation: q.explanation ?? "",
+                }))
             });
         }
     }, [existingTest, form]);
@@ -145,7 +151,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
             // Update existing test
             const testIndex = allTests.findIndex(t => t.id === existingTest.id);
             if (testIndex !== -1) {
-                allTests[testIndex] = { ...allTests[testIndex], ...finalData };
+                allTests[testIndex] = { ...allTests[testIndex], ...finalData, id: existingTest.id };
                 toast({
                     title: "Test Updated!",
                     description: `"${data.title}" has been saved successfully.`,
@@ -181,7 +187,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
             negativeMarks: 0,
             explanation: '',
             options: type === "mcq" ? [{id: crypto.randomUUID(), text: ""}, {id: crypto.randomUUID(), text: ""}] : [],
-            correctAnswer: type === "mcq" ? "" : undefined,
+            correctAnswer: "",
         });
     };
 
@@ -356,9 +362,9 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                                 return (
                                                 <div key={optionId} className="flex items-center gap-2 space-y-0">
                                                     <FormControl>
-                                                        <RadioGroupItem value={optionId} id={optionId} />
+                                                        <RadioGroupItem value={optionId} id={`${field.name}-${optionId}`} />
                                                     </FormControl>
-                                                    <Label htmlFor={optionId} className="w-full">
+                                                    <Label htmlFor={`${field.name}-${optionId}`} className="w-full">
                                                         <FormField
                                                             control={form.control}
                                                             name={`questions.${index}.options.${optionIndex}.text`}
