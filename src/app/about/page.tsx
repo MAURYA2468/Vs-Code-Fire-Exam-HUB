@@ -23,12 +23,12 @@ const teamMembers = [
     },
     {
         name: 'Atish Ranjan',
-        role: 'Co-Founder & CTO',
+        role: '',
         avatarId: 'atish-ranjan',
     },
     {
         name: 'Arem Yeswanth',
-        role: 'Lead Developer',
+        role: '',
         avatarId: 'arem-yeswanth',
     },
 ];
