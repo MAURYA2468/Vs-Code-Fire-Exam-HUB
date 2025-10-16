@@ -39,10 +39,7 @@ export default function Home() {
             <Search className="h-6 w-6 text-gray-500" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-6 w-6 text-gray-500" />
-                  <span className="sr-only">Login or Sign up</span>
-                </Button>
+                <Button variant="ghost">Login</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
@@ -51,7 +48,13 @@ export default function Home() {
                 <DropdownMenuItem asChild>
                   <Link href="/login/teacher">Teacher Login</Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default">Sign Up</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
                  <DropdownMenuItem asChild>
                   <Link href="/signup/student">Student Sign Up</Link>
                 </DropdownMenuItem>
