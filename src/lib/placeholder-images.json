@@ -1,10 +1,10 @@
 {
   "placeholderImages": [
     {
-      "id": "prep-hero",
-      "description": "A smiling student holding a tablet, ready to prepare for an exam.",
-      "imageUrl": "https://picsum.photos/seed/prep-student/450/550",
-      "imageHint": "student tablet"
+      "id": "notesight-hero",
+      "description": "A woman studying on her laptop on a couch.",
+      "imageUrl": "https://picsum.photos/seed/notesight-hero/600/500",
+      "imageHint": "woman laptop study"
     },
     {
       "id": "team-avatar-1",

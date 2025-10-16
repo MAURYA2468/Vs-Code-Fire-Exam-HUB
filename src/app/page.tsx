@@ -1,189 +1,101 @@
-
 "use client"
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FlaskConical, HelpCircle, BarChart } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { cn } from "@/lib/utils";
-import { HomePageHeader } from '@/components/main/HomePageHeader';
+import Logo from '@/components/Logo';
 
-
-const Stat = ({ value, label, className }: { value: string, label: string, className?: string }) => (
-  <div className={cn("absolute rounded-lg border bg-card/80 p-3 text-center shadow-lg backdrop-blur-sm", className)}>
-    <p className="text-lg font-bold text-primary">{value}</p>
-    <p className="text-xs text-muted-foreground">{label}</p>
+const FeatureTag = ({ text }: { text: string }) => (
+  <div className="rounded-full bg-black/30 px-4 py-2 text-sm text-white backdrop-blur-sm">
+    {text}
   </div>
 );
 
-const TestimonialCard = ({ quote, name, avatarId }: { quote: string, name: string, avatarId: string }) => {
-  const avatar = PlaceHolderImages.find(p => p.id === avatarId);
-  return (
-    <Card className="border-none bg-transparent shadow-none">
-      <CardContent className="p-0">
-        <blockquote className="space-y-4">
-          <p className="text-3xl font-extrabold text-foreground">“</p>
-          <p className="text-muted-foreground">{quote}</p>
-          <footer className="flex items-center gap-3 pt-2">
-            {avatar && (
-              <Avatar>
-                <AvatarImage src={avatar.imageUrl} alt={name} data-ai-hint={avatar.imageHint} />
-                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            )}
-            <div>
-              <p className="font-semibold">{name}</p>
-              <p className="text-sm text-muted-foreground">Student</p>
-            </div>
-          </footer>
-        </blockquote>
-      </CardContent>
-    </Card>
-  );
-};
-
-
-const Footer = () => (
-  <footer className="bg-card/50 py-12">
-    <div className="container mx-auto grid grid-cols-1 gap-8 text-center md:grid-cols-3 md:text-left">
-      <div>
-        <h3 className="font-semibold text-foreground">Exam Hub</h3>
-        <p className="mt-2 text-sm text-muted-foreground">© 2024 Exam Hub. All rights reserved.</p>
-      </div>
-      <div>
-        <h3 className="font-semibold text-foreground">Navigation</h3>
-        <ul className="mt-4 space-y-2">
-          <li><Link href="/student/dashboard" className="text-sm text-muted-foreground hover:text-primary">Student Dashboard</Link></li>
-          <li><Link href="/teacher/dashboard" className="text-sm text-muted-foreground hover:text-primary">Teacher Dashboard</Link></li>
-        </ul>
-      </div>
-      <div className="space-y-4">
-        <h3 className="font-semibold text-foreground">Stay up to date</h3>
-        <div className="flex flex-col items-center gap-2 sm:flex-row md:items-start">
-          <Input type="email" placeholder="Your email address" className="flex-1" />
-          <Button>Submit</Button>
-        </div>
-         <div className="flex justify-center gap-4 md:justify-start">
-            <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Term & Condition</Link>
-        </div>
-      </div>
-    </div>
-  </footer>
+const TestCategory = ({ text, active = false }: { text: string, active?: boolean }) => (
+  <Button variant={active ? 'default' : 'ghost'} className={`rounded-full px-6 py-2 text-base font-medium ${active ? '' : 'text-muted-foreground'}`}>
+    {text}
+  </Button>
 );
 
-
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'prep-hero');
-  const teamAvatars = PlaceHolderImages.filter(p => p.id.startsWith('team-avatar-'));
+  const heroImage = PlaceHolderImages.find(p => p.id === 'notesight-hero');
 
   return (
-    <div className="flex flex-1 flex-col">
-      <HomePageHeader />
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="container mx-auto py-12 md:py-24">
-          <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
-            <div className="max-w-lg">
-              <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-                Welcome to <span className="text-primary">Exam Hub</span>. Prepare with confidence.
-              </h1>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Excel every exam with our high yield MCQ's.
-              </p>
-              <div className="mt-6 flex items-center gap-4">
-                <div className="flex -space-x-2">
-                  {teamAvatars.map(avatar => (
-                     <Avatar key={avatar.id} className="border-2 border-background">
-                       <AvatarImage src={avatar.imageUrl} alt={avatar.description} data-ai-hint={avatar.imageHint} />
-                       <AvatarFallback>{avatar.description.charAt(0)}</AvatarFallback>
-                     </Avatar>
-                  ))}
-                </div>
-                <div className="text-sm">
-                  <span className="font-semibold">50+</span> Creative Team.
-                </div>
-              </div>
-            </div>
-            <div className="relative flex items-center justify-center">
-              {heroImage && (
-                <Image
-                  src={heroImage.imageUrl}
-                  alt={heroImage.description}
-                  width={450}
-                  height={550}
-                  className="rounded-full object-cover shadow-2xl"
-                  data-ai-hint={heroImage.imageHint}
-                />
-              )}
-               <Stat value="500+" label="Free Course" className="left-0 top-1/4 -translate-x-1/2" />
-               <Stat value="100K+" label="Online Students" className="right-0 top-1/3 translate-x-1/2" />
-               <Stat value="100+" label="Satisfied Students" className="bottom-8 left-1/2" />
-            </div>
-          </div>
-        </section>
+    <div className="flex min-h-screen flex-col bg-background p-4 sm:p-6 md:p-8">
+      <header className="container mx-auto flex items-center justify-between py-4">
+        <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-foreground">
+          <Logo />
+        </Link>
+        <nav className="hidden items-center gap-6 md:flex">
+          <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Pricing</Link>
+          <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">FAQ</Link>
+          <Link href="#" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Contact us</Link>
+        </nav>
+        <div className="flex items-center gap-2">
+            <Button variant="default" className="rounded-full" asChild>
+                <Link href="/login/student">Sign in</Link>
+            </Button>
+        </div>
+      </header>
 
-        {/* What We Offer Section */}
-        <section className="bg-card/50 py-20">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold">What We Offer</h2>
-            <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-              <Card className="bg-background/50">
-                <CardHeader className="items-center">
-                  <div className="rounded-lg bg-primary/10 p-4 text-primary"><FlaskConical size={32} /></div>
-                  <CardTitle>Live Tests</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Register for the Exam you want to appear. You can register in single click for the exam of your choice from dashboard.</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-background/50">
-                <CardHeader className="items-center">
-                   <div className="rounded-lg bg-primary/10 p-4 text-primary"><HelpCircle size={32} /></div>
-                  <CardTitle>High Yield Questions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Take live test on time, you can take the missed test from dashboard. Live exams link appears only when the exam is live.</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-background/50">
-                <CardHeader className="items-center">
-                   <div className="rounded-lg bg-primary/10 p-4 text-primary"><BarChart size={32} /></div>
-                  <CardTitle>Insightful Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Dashboard is true sense that help you analyze you performance. Everything you do at one place, your real preparations pal.</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+      <main className="flex-1 container mx-auto flex flex-col items-center justify-center">
+        <div className="w-full max-w-7xl rounded-3xl bg-card p-6 sm:p-10 lg:p-12 shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Left Column */}
+                <div className="flex flex-col items-start text-left">
+                    <div className="mb-4 rounded-xl bg-primary/10 p-3">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
+                        Boost your Test <br />
+                        <span className="relative inline-block">
+                            <span className="absolute inset-x-0 bottom-1.5 h-3 bg-yellow-300"></span>
+                            <span className="relative z-10">Scores</span>
+                        </span> with <br /> NoteSightAI
+                    </h1>
+                    <p className="mt-6 text-base text-muted-foreground max-w-md">
+                        Standardized Tests, AP Tests and Courses. High School and University Courses.
+                    </p>
+                    <div className="mt-8 flex items-center gap-4">
+                        <Button size="lg" className="rounded-full px-8 py-6 text-base">Get started</Button>
+                        <Button size="lg" variant="secondary" className="rounded-full bg-foreground text-background hover:bg-foreground/80 px-8 py-6 text-base">Free Assessment</Button>
+                    </div>
+                </div>
 
-        {/* Testimonials Section */}
-        <section className="container mx-auto py-20 text-center">
-            <h2 className="text-3xl font-bold">Our Students are our biggest fans.</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                We don't like to brag, but we don't mind letting our students do it for us. Here are a few things folks have said about our services over the years.
-            </p>
-            <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-                <TestimonialCard 
-                    quote="This was an amazing course! I can't say enough good things about this course. Angela is an amazing instructor, and did an extremly great job teaching all that was promised in the course description."
-                    name="Matt Haris"
-                    avatarId="testimonial-avatar-1"
-                />
-                <TestimonialCard 
-                    quote="This was an amazing course! I can't say enough good things about this course. Angela is an amazing instructor, and did an extremly great job teaching all that was promised in the course description."
-                    name="Natalia Jones"
-                    avatarId="testimonial-avatar-2"
-                />
+                {/* Right Column */}
+                <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden">
+                    {heroImage && (
+                        <Image 
+                            src={heroImage.imageUrl}
+                            alt={heroImage.description}
+                            fill
+                            className="object-cover"
+                            data-ai-hint={heroImage.imageHint}
+                        />
+                    )}
+                    <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center gap-2">
+                        <FeatureTag text="AI Tutor" />
+                        <FeatureTag text="Note Taking" />
+                        <FeatureTag text="Flash Cards" />
+                        <FeatureTag text="Practice Tests" />
+                    </div>
+                </div>
             </div>
-        </section>
-        
+        </div>
+
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <TestCategory text="SAT" />
+            <TestCategory text="PSAT" />
+            <TestCategory text="SSAT" />
+            <TestCategory text="Standardized Tests" active />
+            <TestCategory text="ACT" />
+            <TestCategory text="GMAT" />
+            <TestCategory text="MCAT" />
+            <TestCategory text="LSAT" />
+        </div>
       </main>
-      <Footer />
     </div>
   );
 }
