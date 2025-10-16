@@ -3,79 +3,79 @@
     {
       "id": "examhub-hero-reverted",
       "description": "An abstract illustration representing education and technology.",
-      "imageUrl": "https://picsum.photos/seed/examhub-hero/600/600",
+      "imageUrl": "/images/examhub-hero.jpg",
       "imageHint": "education technology abstract"
     },
     {
       "id": "about-us-hero",
       "description": "A diverse group of people collaborating around a table.",
-      "imageUrl": "https://picsum.photos/seed/about-us-hero/600/400",
+      "imageUrl": "/images/about-us-hero.jpg",
       "imageHint": "team collaboration"
     },
     {
       "id": "team-avatar-1",
       "description": "Team member 1",
-      "imageUrl": "https://picsum.photos/seed/team1/40/40",
+      "imageUrl": "/images/team-avatar-1.jpg",
       "imageHint": "person face"
     },
     {
       "id": "team-avatar-2",
       "description": "Team member 2",
-      "imageUrl": "https://picsum.photos/seed/team2/40/40",
+      "imageUrl": "/images/team-avatar-2.jpg",
       "imageHint": "person face"
     },
     {
       "id": "team-avatar-3",
       "description": "Team member 3",
-      "imageUrl": "https://picsum.photos/seed/team3/40/40",
+      "imageUrl": "/images/team-avatar-3.jpg",
       "imageHint": "person face"
     },
     {
       "id": "testimonial-avatar-1",
       "description": "Avatar for Matt Haris",
-      "imageUrl": "https://picsum.photos/seed/matt-haris/40/40",
+      "imageUrl": "/images/testimonial-avatar-1.jpg",
       "imageHint": "man face"
     },
     {
       "id": "testimonial-avatar-2",
       "description": "Avatar for Natalia Jones",
-      "imageUrl": "https://picsum.photos/seed/natalia-jones/40/40",
+      "imageUrl": "/images/testimonial-avatar-2.jpg",
       "imageHint": "woman face"
     },
     {
       "id": "auth-hero",
       "description": "An illustration related to education and learning.",
-      "imageUrl": "https://picsum.photos/seed/auth-hero/600/600",
+      "imageUrl": "/images/auth-hero.jpg",
       "imageHint": "education learning"
     },
     {
       "id": "course-thumbnail",
       "description": "Thumbnail for a physics course.",
-      "imageUrl": "https://picsum.photos/seed/physics-course/600/400",
+      "imageUrl": "/images/course-thumbnail.jpg",
       "imageHint": "physics classroom"
     },
     {
       "id": "ankit-raj",
       "description": "Avatar for Ankit Raj",
-      "imageUrl": "https://picsum.photos/seed/ankit-r/40/40",
+      "imageUrl": "/images/ankit-raj.jpg",
       "imageHint": "man face"
     },
     {
       "id": "atish-ranjan",
       "description": "Avatar for Atish Ranjan",
-      "imageUrl": "https://picsum.photos/seed/atish-r/40/40",
+      "imageUrl": "/images/atish-ranjan.jpg",
       "imageHint": "person face"
     },
     {
       "id": "arem-yeswanth",
       "description": "Avatar for Arem Yeswanth",
-      "imageUrl": "https://picsum.photos/seed/arem-y/40/40",
+      "imageUrl": "/images/arem-yeswanth.jpg",
       "imageHint": "person face"
     },
     {
       "id": "ava-jones",
       "description": "Avatar for Ava Jones",
-      "imageUrl": "https://picsum.photos/seed/ava-j/40/40",
+      "imageUrl": "/images/ava-jones.jpg",
       "imageHint": "person portrait"
     }
   ]

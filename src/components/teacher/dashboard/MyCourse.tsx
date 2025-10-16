@@ -102,7 +102,7 @@ export default function MyCourse() {
                     <div className="flex -space-x-2">
                         {displayedAvatars.map(student => (
                             <Avatar key={student.id} className="border-2 border-background">
-                                <AvatarImage src={`https://picsum.photos/seed/${student.id}/40/40`} alt={student.name} />
+                                <AvatarImage src={`/images/student-avatar-${student.id}.jpg`} alt={student.name} />
                                 <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                         ))}

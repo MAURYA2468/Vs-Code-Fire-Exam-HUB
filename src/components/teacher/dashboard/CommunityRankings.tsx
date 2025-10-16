@@ -137,7 +137,7 @@ export default function CommunityRankings() {
                     <TableCell>
                     <div className="flex items-center gap-3">
                         <Avatar>
-                        <AvatarImage src={`https://picsum.photos/seed/${student.avatarId}/40/40`} />
+                        <AvatarImage src={`/images/student-avatar-${student.avatarId}.jpg`} />
                         <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <span>{student.name}</span>
