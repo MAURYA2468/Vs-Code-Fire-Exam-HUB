@@ -122,10 +122,6 @@ export default function Home() {
               <p className="mt-4 text-lg text-muted-foreground">
                 Excel every exam with our high yield MCQ's.
               </p>
-              <div className="mt-8 flex w-full max-w-md items-center space-x-2">
-                <Input type="text" placeholder="Find course" className="flex-1" />
-                <Button type="submit">Search</Button>
-              </div>
               <div className="mt-6 flex items-center gap-4">
                 <div className="flex -space-x-2">
                   {teamAvatars.map(avatar => (
@@ -136,7 +132,7 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="text-sm">
-                  <span className="font-semibold">50+</span> Creative Team. <Link href="#" className="font-semibold text-primary underline">View Price</Link>
+                  <span className="font-semibold">50+</span> Creative Team.
                 </div>
               </div>
             </div>
