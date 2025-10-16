@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, AlertTriangle, Clock, CameraOff, Bookmark, List, X } from "lucide-react";
@@ -203,6 +203,42 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
     getCameraPermission();
   }, [getCameraPermission]);
 
+  const submitTest = useCallback(async (data: FormData) => {
+    if (!user || !test || isSubmitting) return;
+    setIsSubmitting(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    const answers: Answer[] = Object.entries(data.answers).map(([questionId, value]) => ({
+      questionId, value,
+    }));
+    
+    const newSubmission: Submission = {
+      id: crypto.randomUUID(),
+      testId: test.id,
+      studentId: user.id,
+      answers,
+      submittedAt: new Date().toISOString(),
+      attemptNumber,
+      score: 0, // No auto-grading
+      leaveCount: leaveCount,
+    };
+
+    const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
+    const allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
+    allSubmissions.push(newSubmission);
+    localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(allSubmissions));
+
+    // Clean up localStorage for this attempt
+    const storageKey = getQuestionStatesStorageKey();
+    if (storageKey) {
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem(`answers-${storageKey}`);
+    }
+
+    toast({ title: "Test Submitted!", description: `Your submission for "${test.title}" is awaiting grading.` });
+    router.push(`/student/results/${newSubmission.id}`);
+  }, [user, test, isSubmitting, attemptNumber, leaveCount, getQuestionStatesStorageKey, toast, router]);
+
   useEffect(() => {
     if (test && timeLeft > 0) {
       timerRef.current = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
@@ -211,7 +247,7 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
       submitTest(getValues());
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current) };
-  }, [test, timeLeft, getValues, isSubmitting]);
+  }, [test, timeLeft, getValues, isSubmitting, submitTest]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -230,42 +266,6 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [leaveCount, toast]);
-
-  const submitTest = async (data: FormData) => {
-    if (!user || !test || isSubmitting) return;
-    setIsSubmitting(true);
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    const answers: Answer[] = Object.entries(data.answers).map(([questionId, value]) => ({
-      questionId, value,
-    }));
-    
-    const newSubmission: Submission = {
-      id: crypto.randomUUID(),
-      testId: test.id,
-      studentId: user.id,
-      answers,
-      submittedAt: new Date().toISOString(),
-      attemptNumber,
-      score: 0,
-      leaveCount: leaveCount,
-    };
-
-    const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
-    const allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
-    allSubmissions.push(newSubmission);
-    localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(allSubmissions));
-
-    // Clean up localStorage for this attempt
-    const storageKey = getQuestionStatesStorageKey();
-    if (storageKey) {
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(`answers-${storageKey}`);
-    }
-
-    toast({ title: "Test Submitted!", description: `Your submission for "${test.title}" is awaiting grading.` });
-    router.push(`/student/results/${newSubmission.id}`);
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -424,6 +424,7 @@ export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
                             <div className="flex justify-between items-start">
                                 <CardTitle>Question {index + 1} <span className="text-sm font-normal text-muted-foreground">({q.points} points)</span></CardTitle>
                                 <Button
+                                  type="button"
                                   variant={questionStates.find(s => s.id === q.id)?.status === 'markedForReview' ? 'default' : 'outline'}
                                   size="sm"
                                   onClick={toggleMarkForReview}
