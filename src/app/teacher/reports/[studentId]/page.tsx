@@ -4,11 +4,14 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { User } from "@/lib/types";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 const USERS_STORAGE_KEY = "exam-hub-users";
 
-export default function StudentReportPage({ params: { studentId } }: { params: { studentId: string } }) {
+export default function StudentReportPage() {
     const [student, setStudent] = useState<User | null>(null);
+    const params = useParams();
+    const studentId = params.studentId as string;
 
     useEffect(() => {
         if (studentId) {
