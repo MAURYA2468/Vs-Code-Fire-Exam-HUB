@@ -9,13 +9,16 @@ const USERS_STORAGE_KEY = "exam-hub-users";
 
 export default function StudentReportPage({ params }: { params: { studentId: string } }) {
     const [student, setStudent] = useState<User | null>(null);
+    const { studentId } = params;
 
     useEffect(() => {
-        const allUsersJson = localStorage.getItem(USERS_STORAGE_KEY);
-        const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
-        const foundStudent = allUsers.find(u => u.id === params.studentId);
-        setStudent(foundStudent || null);
-    }, [params.studentId]);
+        if (studentId) {
+            const allUsersJson = localStorage.getItem(USERS_STORAGE_KEY);
+            const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
+            const foundStudent = allUsers.find(u => u.id === studentId);
+            setStudent(foundStudent || null);
+        }
+    }, [studentId]);
 
   return (
     <div className="container mx-auto">
