@@ -216,6 +216,15 @@ export default function TestTaker({ testId }: { testId: string }) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    toast({
+        variant: "destructive",
+        title: "Pasting is disabled",
+        description: "Please type your own answer."
+    });
+  };
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
@@ -308,10 +317,10 @@ export default function TestTaker({ testId }: { testId: string }) {
                                   </RadioGroup>
                                 )}
                                 {q.type === 'short-answer' && (
-                                  <Input {...field} placeholder="Your answer..." />
+                                  <Input {...field} placeholder="Your answer..." onPaste={handlePaste} />
                                 )}
                                 {q.type === 'essay' && (
-                                  <Textarea {...field} placeholder="Your essay..." rows={8} />
+                                  <Textarea {...field} placeholder="Your essay..." rows={8} onPaste={handlePaste} />
                                 )}
                               </>
                             )}
@@ -384,5 +393,3 @@ export default function TestTaker({ testId }: { testId: string }) {
     </div>
   );
 }
-
-    
