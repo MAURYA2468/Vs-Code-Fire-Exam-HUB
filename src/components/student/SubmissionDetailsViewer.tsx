@@ -6,8 +6,11 @@ import { Submission, Test, User, Question } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle, AlertTriangle } from "lucide-react";
+import { Loader2, User as UserIcon, Clock, CheckCircle, XCircle, HelpCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -18,10 +21,12 @@ interface SubmissionViewerProps {
 }
 
 export default function SubmissionDetailsViewer({ submissionId }: SubmissionViewerProps) {
+    const router = useRouter();
     const [test, setTest] = useState<Test | null>(null);
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [student, setStudent] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [canRetake, setCanRetake] = useState(false);
 
     useEffect(() => {
         if (!submissionId) {
@@ -44,6 +49,14 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
             const allUsers: User[] = allUsersJson ? JSON.parse(allUsersJson) : [];
             const foundStudent = allUsers.find(u => u.id === foundSubmission.studentId);
             setStudent(foundStudent || null);
+
+            if (foundTest && foundStudent) {
+                const studentSubmissionsForTest = allSubmissions.filter(s => s.testId === foundTest.id && s.studentId === foundStudent.id);
+                const maxAttempts = foundTest.maxAttempts ?? 0;
+                if (maxAttempts === 0 || studentSubmissionsForTest.length < maxAttempts) {
+                    setCanRetake(true);
+                }
+            }
         }
 
         setIsLoading(false);
@@ -112,13 +125,15 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
     const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
     const finalScore = submission.gradedScore ?? submission.score ?? 0;
     const needsGrading = submission.gradedScore === undefined && test.questions.some(q => q.type !== 'mcq');
+    const attemptText = test.maxAttempts && test.maxAttempts > 0 ? `Attempt ${submission.attemptNumber} of ${test.maxAttempts}` : `Attempt ${submission.attemptNumber}`;
+
 
     return (
         <div className="container mx-auto">
             <Card>
                 <CardHeader>
                     <CardTitle className="text-2xl">Results for: <span className="font-semibold text-primary">{test.title}</span></CardTitle>
-                    <CardDescription>Review of your submission.</CardDescription>
+                    <CardDescription>{attemptText}</CardDescription>
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-4 text-sm text-muted-foreground">
                         <div className="flex items-center">
                             <UserIcon className="mr-2 h-4 w-4" />
@@ -136,13 +151,20 @@ export default function SubmissionDetailsViewer({ submissionId }: SubmissionView
                         )}
                     </div>
                 </CardHeader>
-                <CardFooter>
+                <CardFooter className="flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <Badge variant="default" className="text-base">
                             Final Score: {finalScore} / {totalPoints}
                         </Badge>
                         {needsGrading && <Badge variant="outline">Awaiting manual grade</Badge>}
                     </div>
+                    {canRetake && (
+                        <Button asChild>
+                            <Link href={`/student/tests/${test.id}`}>
+                                <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
+                            </Link>
+                        </Button>
+                    )}
                 </CardFooter>
             </Card>
 

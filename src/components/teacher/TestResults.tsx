@@ -3,16 +3,24 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Submission, Test, User } from "@/lib/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { Loader2, Users, FileText, BarChart2, Eye, Edit, AlertTriangle } from "lucide-react";
+import { Loader2, Users, FileText, BarChart2, Eye, Edit, AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "../ui/label";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { useToast } from "@/hooks/use-toast";
+
 
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
@@ -25,15 +33,20 @@ type EnrichedSubmission = Submission & {
   isGraded: boolean;
 };
 
-type SortKey = "studentName" | "submittedAt" | "finalScore" | "isGraded";
-type SortDirection = "asc" | "desc";
+type StudentGroup = {
+  student: User;
+  submissions: EnrichedSubmission[];
+  bestScore: number;
+  latestScore: number;
+  averageScore: number;
+}
 
 export default function TestResults({ testId }: { testId: string }) {
+  const { toast } = useToast();
   const [test, setTest] = useState<Test | null>(null);
-  const [submissions, setSubmissions] = useState<EnrichedSubmission[]>([]);
+  const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [sortKey, setSortKey] = useState<SortKey>("finalScore");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [key, setKey] = useState(0); // Used to force re-render
 
   useEffect(() => {
     if (!testId) {
@@ -55,55 +68,63 @@ export default function TestResults({ testId }: { testId: string }) {
 
       const totalPoints = foundTest.questions.reduce((sum, q) => sum + q.points, 0);
 
-      const enriched = testSubmissions.map(sub => {
-        const student = allUsers.find(u => u.id === sub.studentId);
+      const groups: Record<string, StudentGroup> = {};
+
+      for(const sub of testSubmissions) {
+        if (!groups[sub.studentId]) {
+          const student = allUsers.find(u => u.id === sub.studentId);
+          if (!student) continue;
+
+          groups[sub.studentId] = {
+            student,
+            submissions: [],
+            bestScore: 0,
+            latestScore: 0,
+            averageScore: 0
+          }
+        }
+
         const finalScore = sub.gradedScore ?? sub.score ?? 0;
         const percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
         
-        return {
+        groups[sub.studentId].submissions.push({
           ...sub,
-          studentName: student?.name ?? 'Unknown Student',
+          studentName: groups[sub.studentId].student.name,
           percentage,
           finalScore,
           isGraded: sub.gradedScore !== undefined,
-        };
+        });
+      }
+
+      Object.values(groups).forEach(group => {
+        group.submissions.sort((a,b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+        group.bestScore = Math.max(...group.submissions.map(s => s.finalScore));
+        group.latestScore = group.submissions[0]?.finalScore ?? 0;
+        group.averageScore = group.submissions.reduce((acc, s) => acc + s.finalScore, 0) / group.submissions.length;
       });
       
-      setSubmissions(enriched);
+      setStudentGroups(Object.values(groups));
     }
     
     setIsLoading(false);
-  }, [testId]);
-  
-  const sortedSubmissions = useMemo(() => {
-    return [...submissions].sort((a, b) => {
-      if (sortKey === 'isGraded') {
-          // False (ungraded) should come before true (graded)
-          if (a.isGraded === b.isGraded) return 0;
-          if (sortDirection === 'asc') {
-            return a.isGraded ? 1 : -1;
-          }
-          return a.isGraded ? -1 : 1;
-      }
-      
-      const aValue = a[sortKey];
-      const bValue = b[sortKey];
+  }, [testId, key]);
 
-      if (sortKey === 'submittedAt') {
-        return sortDirection === 'asc' 
-          ? new Date(aValue as string).getTime() - new Date(bValue as string).getTime() 
-          : new Date(bValue as string).getTime() - new Date(aValue as string).getTime();
-      }
+  const resetStudentAttempts = (studentId: string) => {
+    const allSubmissionsJson = localStorage.getItem(SUBMISSIONS_STORAGE_KEY);
+    let allSubmissions: Submission[] = allSubmissionsJson ? JSON.parse(allSubmissionsJson) : [];
+    
+    const submissionsToKeep = allSubmissions.filter(s => !(s.studentId === studentId && s.testId === testId));
+    
+    localStorage.setItem(SUBMISSIONS_STORAGE_KEY, JSON.stringify(submissionsToKeep));
 
-      if (aValue < bValue) {
-        return sortDirection === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortDirection === 'asc' ? 1 : -1;
-      }
-      return 0;
+    const studentName = studentGroups.find(g => g.student.id === studentId)?.student.name;
+    toast({
+        title: "Attempts Reset",
+        description: `All attempts for ${studentName} on this test have been deleted.`,
     });
-  }, [submissions, sortKey, sortDirection]);
+    setKey(prev => prev + 1); // Force re-render
+  };
+  
 
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
@@ -113,9 +134,10 @@ export default function TestResults({ testId }: { testId: string }) {
     return <div className="text-center text-destructive">Test not found.</div>;
   }
 
+  const totalSubmissionsCount = studentGroups.reduce((acc, group) => acc + group.submissions.length, 0);
   const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
-  const averageScore = submissions.length > 0 ? submissions.reduce((sum, sub) => sum + (sub.finalScore), 0) / submissions.length : 0;
-  const averagePercentage = totalPoints > 0 ? (averageScore / totalPoints) * 100 : 0;
+  const averageScoreAll = studentGroups.length > 0 ? studentGroups.reduce((sum, group) => sum + group.averageScore, 0) / studentGroups.length : 0;
+  const averagePercentageAll = totalPoints > 0 ? (averageScoreAll / totalPoints) * 100 : 0;
   const needsManualGrading = test.questions.some(q => q.type !== 'mcq');
 
 
@@ -135,16 +157,18 @@ export default function TestResults({ testId }: { testId: string }) {
                 <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{submissions.length}</div>
+                <div className="text-2xl font-bold">{totalSubmissionsCount}</div>
+                 <p className="text-xs text-muted-foreground">from {studentGroups.length} students</p>
             </CardContent>
         </Card>
         <Card className="bg-card/70">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+                <CardTitle className="text-sm font-medium">Class Average (Best Scores)</CardTitle>
                 <BarChart2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{averageScore.toFixed(1)} / {totalPoints} ({averagePercentage.toFixed(1)}%)</div>
+                <div className="text-2xl font-bold">{averageScoreAll.toFixed(1)} / {totalPoints} ({averagePercentageAll.toFixed(1)}%)</div>
+                 <p className="text-xs text-muted-foreground">Based on student's average scores</p>
             </CardContent>
         </Card>
          <Card className="bg-card/70">
@@ -154,122 +178,104 @@ export default function TestResults({ testId }: { testId: string }) {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">{test.questions.length}</div>
+                 <p className="text-xs text-muted-foreground">&nbsp;</p>
             </CardContent>
         </Card>
       </div>
 
       <Card className="bg-card/70">
         <CardHeader>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle>Student Leaderboard</CardTitle>
-              <CardDescription>
-                Results are ranked by score. MCQs are auto-graded. Short answer and essay questions require manual review.
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="sort-by">Sort By</Label>
-                <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
-                  <SelectTrigger id="sort-by" className="w-[150px]">
-                    <SelectValue placeholder="Sort by..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="finalScore">Score</SelectItem>
-                    <SelectItem value="studentName">Student Name</SelectItem>
-                    <SelectItem value="submittedAt">Date</SelectItem>
-                    <SelectItem value="isGraded">Status</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2">
-                 <Label htmlFor="sort-dir">Order</Label>
-                <Select value={sortDirection} onValueChange={(value) => setSortDirection(value as SortDirection)}>
-                   <SelectTrigger id="sort-dir" className="w-[120px]">
-                    <SelectValue placeholder="Order..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="desc">Descending</SelectItem>
-                    <SelectItem value="asc">Ascending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
+            <CardTitle>Student Submissions</CardTitle>
+            <CardDescription>
+                Review submissions from all students. Expand to see attempt history.
+            </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">Rank</TableHead>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Submitted At</TableHead>
-                <TableHead>Score</TableHead>
-                {needsManualGrading && <TableHead>Status</TableHead>}
-                <TableHead className="text-center">Away</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedSubmissions.length > 0 ? (
-                sortedSubmissions.map((sub, index) => (
-                  <TableRow 
-                    key={sub.id} 
-                    className="animate-table-row-fade-in"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <TableCell className="font-medium">{sortKey === "finalScore" && sortDirection === "desc" ? index + 1 : "-"}</TableCell>
-                    <TableCell>{sub.studentName}</TableCell>
-                    <TableCell>{format(parseISO(sub.submittedAt), "Pp")}</TableCell>
-                    <TableCell>
-                        <Badge variant={sub.percentage > 75 ? "default" : sub.percentage > 50 ? "secondary" : "destructive"}>
-                            {`${sub.finalScore} / ${totalPoints} (${sub.percentage.toFixed(1)}%)`}
-                        </Badge>
-                    </TableCell>
-                    {needsManualGrading &&
-                      <TableCell>
-                          {!sub.isGraded ? (
-                            <Badge variant="outline">Ungraded</Badge>
-                          ) : (
-                            <Badge variant="secondary">Graded</Badge>
-                          )}
-                      </TableCell>
-                    }
-                    <TableCell className="text-center font-medium">
-                      {(sub.leaveCount ?? 0) > 0 ? (
-                        <div className="flex items-center justify-center gap-1 text-yellow-500">
-                           <AlertTriangle className="h-4 w-4" />
-                           {sub.leaveCount}
-                        </div>
-                      ) : (
-                        <span>0</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                        <Button asChild variant="outline" size="sm">
-                            <Link href={`/teacher/tests/${testId}/submissions/${sub.id}`}>
-                                <Eye className="mr-2 h-4 w-4" /> View
-                            </Link>
-                        </Button>
-                        {needsManualGrading &&
-                          <Button asChild size="sm">
-                              <Link href={`/teacher/tests/${testId}/grade/${sub.id}`}>
-                                  <Edit className="mr-2 h-4 w-4" /> Grade
-                              </Link>
-                          </Button>
-                        }
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={needsManualGrading ? 7 : 6} className="h-24 text-center">
-                    No submissions yet.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+            {studentGroups.length === 0 ? (
+                 <div className="h-24 text-center content-center text-muted-foreground">No submissions yet.</div>
+            ) : (
+                <Accordion type="single" collapsible className="w-full">
+                    {studentGroups.sort((a,b) => b.bestScore - a.bestScore).map((group) => (
+                        <AccordionItem value={group.student.id} key={group.student.id}>
+                            <AccordionTrigger className="hover:no-underline">
+                                <div className="flex w-full items-center justify-between pr-4">
+                                    <div className="flex-1 text-left font-semibold">{group.student.name}</div>
+                                    <div className="flex-1 text-center hidden sm:block"><Badge variant="secondary">{group.submissions.length} {group.submissions.length === 1 ? "attempt" : "attempts"}</Badge></div>
+                                    <div className="flex-1 text-center hidden md:block">Best: <Badge>{group.bestScore.toFixed(1)} / {totalPoints}</Badge></div>
+                                    <div className="flex-1 text-right">Latest: <Badge variant="outline">{group.latestScore.toFixed(1)} / {totalPoints}</Badge></div>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="p-2 bg-muted/20 rounded-md">
+                                    <div className="flex justify-end mb-4">
+                                        <Button size="sm" variant="destructive" onClick={() => resetStudentAttempts(group.student.id)}>
+                                            <RefreshCw className="mr-2 h-4 w-4"/> Reset All Attempts
+                                        </Button>
+                                    </div>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Attempt</TableHead>
+                                                <TableHead>Submitted At</TableHead>
+                                                <TableHead>Score</TableHead>
+                                                {needsManualGrading && <TableHead>Status</TableHead>}
+                                                <TableHead className="text-center">Away</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {group.submissions.map(sub => (
+                                                <TableRow key={sub.id}>
+                                                    <TableCell className="font-medium">#{sub.attemptNumber}</TableCell>
+                                                    <TableCell>{format(parseISO(sub.submittedAt), "Pp")}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={sub.percentage > 75 ? "default" : sub.percentage > 50 ? "secondary" : "destructive"}>
+                                                            {`${sub.finalScore} / ${totalPoints} (${sub.percentage.toFixed(1)}%)`}
+                                                        </Badge>
+                                                    </TableCell>
+                                                     {needsManualGrading &&
+                                                        <TableCell>
+                                                            {!sub.isGraded ? (
+                                                                <Badge variant="outline">Ungraded</Badge>
+                                                            ) : (
+                                                                <Badge variant="secondary">Graded</Badge>
+                                                            )}
+                                                        </TableCell>
+                                                    }
+                                                    <TableCell className="text-center font-medium">
+                                                        {(sub.leaveCount ?? 0) > 0 ? (
+                                                            <div className="flex items-center justify-center gap-1 text-yellow-500">
+                                                            <AlertTriangle className="h-4 w-4" />
+                                                            {sub.leaveCount}
+                                                            </div>
+                                                        ) : (
+                                                            <span>0</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right space-x-2">
+                                                        <Button asChild variant="outline" size="sm">
+                                                            <Link href={`/teacher/tests/${testId}/submissions/${sub.id}`}>
+                                                                <Eye className="mr-2 h-4 w-4" /> View
+                                                            </Link>
+                                                        </Button>
+                                                        {needsManualGrading &&
+                                                            <Button asChild size="sm">
+                                                                <Link href={`/teacher/tests/${testId}/grade/${sub.id}`}>
+                                                                    <Edit className="mr-2 h-4 w-4" /> Grade
+                                                                </Link>
+                                                            </Button>
+                                                        }
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            )}
         </CardContent>
       </Card>
     </div>

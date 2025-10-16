@@ -3,9 +3,9 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { Submission, Test } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Trophy, Clock, ListOrdered, Percent, ArrowRight } from "lucide-react";
+import { Trophy, Clock, ListOrdered, Percent, ArrowRight, Star } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -14,15 +14,15 @@ import { Button } from "@/components/ui/button";
 const TESTS_STORAGE_KEY = "exam-hub-tests";
 const SUBMISSIONS_STORAGE_KEY = "exam-hub-submissions";
 
-type EnrichedSubmission = Submission & {
-  test: Test | null;
-  percentage: number | null;
-  finalScore: number;
+type GroupedResults = {
+  test: Test;
+  submissions: (Submission & { percentage: number | null, finalScore: number })[];
+  bestSubmission: (Submission & { percentage: number | null, finalScore: number }) | null;
 };
 
 export default function StudentResultsPage() {
   const { user } = useAuth();
-  const [results, setResults] = useState<EnrichedSubmission[]>([]);
+  const [groupedResults, setGroupedResults] = useState<GroupedResults[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,20 +33,42 @@ export default function StudentResultsPage() {
 
       const allTestsJson = localStorage.getItem(TESTS_STORAGE_KEY);
       const allTests: Test[] = allTestsJson ? JSON.parse(allTestsJson) : [];
+      
+      const resultsByTest = new Map<string, GroupedResults>();
 
-      const enrichedSubmissions = studentSubmissions.map(submission => {
-        const test = allTests.find(t => t.id === submission.testId) ?? null;
-        let percentage: number | null = null;
-        const finalScore = submission.gradedScore ?? submission.score ?? 0;
-        
-        if (test) {
+      for (const submission of studentSubmissions) {
+          const test = allTests.find(t => t.id === submission.testId);
+          if (!test) continue;
+
+          let percentage: number | null = null;
+          const finalScore = submission.gradedScore ?? submission.score ?? 0;
           const totalPoints = test.questions.reduce((sum, q) => sum + q.points, 0);
           percentage = totalPoints > 0 ? (finalScore / totalPoints) * 100 : 0;
-        }
-        return { ...submission, test, percentage, finalScore };
-      }).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+          
+          const enrichedSubmission = { ...submission, percentage, finalScore };
 
-      setResults(enrichedSubmissions);
+          if (!resultsByTest.has(test.id)) {
+              resultsByTest.set(test.id, {
+                  test: test,
+                  submissions: [],
+                  bestSubmission: null
+              });
+          }
+          const group = resultsByTest.get(test.id)!;
+          group.submissions.push(enrichedSubmission);
+          
+          if (!group.bestSubmission || enrichedSubmission.finalScore > group.bestSubmission.finalScore) {
+              group.bestSubmission = enrichedSubmission;
+          }
+      }
+      
+      const sortedGroupedResults = Array.from(resultsByTest.values()).sort((a,b) => {
+          const latestSubA = new Date(Math.max(...a.submissions.map(s => parseISO(s.submittedAt).getTime()))).getTime();
+          const latestSubB = new Date(Math.max(...b.submissions.map(s => parseISO(s.submittedAt).getTime()))).getTime();
+          return latestSubB - latestSubA;
+      });
+
+      setGroupedResults(sortedGroupedResults);
       setIsLoading(false);
     }
   }, [user]);
@@ -59,10 +81,10 @@ export default function StudentResultsPage() {
     <div className="container mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">My Results</h1>
-        <p className="text-muted-foreground">Review your performance on past tests.</p>
+        <p className="text-muted-foreground">Review your performance on past tests. Your best attempt for each test is highlighted.</p>
       </div>
 
-      {results.length === 0 ? (
+      {groupedResults.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/30 bg-card/50 py-24 text-center">
             <Trophy className="mb-4 h-16 w-16 text-muted-foreground" />
             <h2 className="text-2xl font-semibold">No Results Yet</h2>
@@ -71,43 +93,44 @@ export default function StudentResultsPage() {
             </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map(result => (
-            <Card key={result.id} className="flex flex-col bg-card/70 backdrop-blur-sm transition-shadow hover:shadow-lg hover:scale-105">
+        <div className="space-y-8">
+          {groupedResults.map(({test, submissions, bestSubmission}) => (
+            <Card key={test.id} className="bg-card/70 backdrop-blur-sm">
                 <CardHeader>
-                    <CardTitle className="line-clamp-2">{result.test?.title ?? "Test not found"}</CardTitle>
-                    <CardDescription>Submitted on: {format(parseISO(result.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</CardDescription>
+                    <CardTitle className="text-2xl">{test.title}</CardTitle>
+                    <CardDescription>{test.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-grow space-y-3">
-                    {result.test && (
-                    <>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                        <ListOrdered className="mr-2 h-4 w-4" />
-                        <span>{result.test.questions.length} questions</span>
-                        </div>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="mr-2 h-4 w-4" />
-                        <span>{result.test.duration} minutes duration</span>
-                        </div>
-                    </>
-                    )}
-                    {result.test && (
-                    <div className="flex items-center text-sm font-semibold text-primary">
-                        <Percent className="mr-2 h-4 w-4" />
-                        <span>Score: {result.finalScore} / {result.test.questions.reduce((sum, q) => sum + q.points, 0)} ({result.percentage?.toFixed(1)}%)</span>
-                    </div>
-                    )}
-                    {result.gradedScore === undefined && result.test?.questions.some(q => q.type !== 'mcq') &&
-                        <Badge variant="outline">Awaiting manual grade</Badge>
-                    }
+                <CardContent>
+                    <ul className="space-y-4">
+                        {submissions.sort((a, b) => b.attemptNumber - a.attemptNumber).map(sub => (
+                             <li key={sub.id} className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border transition-all ${sub.id === bestSubmission?.id ? 'bg-primary/10 border-primary' : 'bg-background/50'}`}>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="font-semibold">Attempt #{sub.attemptNumber}</h3>
+                                        {sub.id === bestSubmission?.id && (
+                                            <Badge variant="default" className="gap-1"><Star className="h-3 w-3" /> Best</Badge>
+                                        )}
+                                        {sub.gradedScore === undefined && test.questions.some(q => q.type !== 'mcq') &&
+                                            <Badge variant="outline">Awaiting manual grade</Badge>
+                                        }
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-1">Submitted on: {format(parseISO(sub.submittedAt), "MMMM d, yyyy 'at' h:mm a")}</p>
+                                </div>
+                                <div className="flex items-center gap-6">
+                                    <div className="text-right">
+                                        <p className="font-bold text-lg">{sub.finalScore} / {test.questions.reduce((sum, q) => sum + q.points, 0)}</p>
+                                        <p className="text-sm text-muted-foreground">({sub.percentage?.toFixed(1)}%)</p>
+                                    </div>
+                                    <Button asChild size="sm">
+                                        <Link href={`/student/results/${sub.id}`}>
+                                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </div>
+                             </li>
+                        ))}
+                    </ul>
                 </CardContent>
-                <CardFooter>
-                    <Button asChild className="w-full">
-                        <Link href={`/student/results/${result.id}`}>
-                            View Details <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                    </Button>
-                </CardFooter>
             </Card>
           ))}
         </div>

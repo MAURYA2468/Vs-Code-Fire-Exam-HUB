@@ -35,7 +35,7 @@ export interface Test {
   questions: Question[];
   createdAt: string;
   accessCode?: string;
-  allowRetakes?: boolean;
+  maxAttempts?: number; // 0 or undefined for unlimited
 }
 
 export interface Answer {
@@ -50,6 +50,7 @@ export interface Submission {
   studentId: string;
   answers: Answer[];
   submittedAt: string;
+  attemptNumber: number;
   score?: number; // Auto-calculated for MCQs
   gradedScore?: number; // Manually calculated score
   leaveCount?: number;

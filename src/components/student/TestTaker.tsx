@@ -37,8 +37,13 @@ function shuffleArray<T>(array: T[]): T[] {
   return newArray;
 }
 
+interface TestTakerProps {
+  testId: string;
+  attemptNumber: number;
+}
 
-export default function TestTaker({ testId }: { testId: string }) {
+
+export default function TestTaker({ testId, attemptNumber }: TestTakerProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -193,6 +198,7 @@ export default function TestTaker({ testId }: { testId: string }) {
       studentId: user.id,
       answers,
       submittedAt: new Date().toISOString(),
+      attemptNumber,
       score,
       leaveCount: leaveCount,
     };
@@ -207,7 +213,7 @@ export default function TestTaker({ testId }: { testId: string }) {
       description: `Your submission for "${test.title}" has been recorded.`,
     });
 
-    router.push("/student/dashboard");
+    router.push(`/student/results/${newSubmission.id}`);
   };
 
   const formatTime = (seconds: number) => {

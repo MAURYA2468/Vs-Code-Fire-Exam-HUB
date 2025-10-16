@@ -12,12 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, Trash2, XCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/use-auth";
-import { Test, Question } from "@/lib/types";
+import { Test } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
 
 const optionSchema = z.object({
   id: z.string(),
@@ -39,7 +38,7 @@ const testSchema = z.object({
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute"),
   questions: z.array(questionSchema).min(1, "A test must have at least one question"),
   accessCode: z.string().optional(),
-  allowRetakes: z.boolean().optional(),
+  maxAttempts: z.coerce.number().min(0, "Maximum attempts cannot be negative").optional(),
 }).superRefine((data, ctx) => {
     data.questions.forEach((q, index) => {
         if (q.type === "mcq" && (!q.correctAnswer || q.correctAnswer === "")) {
@@ -74,7 +73,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
             duration: 30,
             questions: [],
             accessCode: "",
-            allowRetakes: false,
+            maxAttempts: 1,
         },
     });
 
@@ -82,7 +81,7 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
         if (existingTest) {
             form.reset({
                 ...existingTest,
-                allowRetakes: existingTest.allowRetakes ?? false,
+                maxAttempts: existingTest.maxAttempts ?? 1,
             });
         }
     }, [existingTest, form]);
@@ -179,20 +178,12 @@ export default function TestBuilder({ existingTest }: TestBuilderProps) {
                             <FormMessage />
                         </FormItem>
                     )} />
-                     <FormField name="allowRetakes" control={form.control} render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                                <FormLabel>Allow Retakes</FormLabel>
-                                <FormDescription>
-                                    Let students take this test more than once.
-                                </FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
+                     <FormField name="maxAttempts" control={form.control} render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Max Attempts</FormLabel>
+                            <FormDescription>Set to 0 for unlimited attempts.</FormDescription>
+                            <FormControl><Input type="number" min={0} {...field} /></FormControl>
+                            <FormMessage />
                         </FormItem>
                     )} />
                 </div>
@@ -290,10 +281,10 @@ function QuestionBuilder({ form, index, removeQuestion }: { form: any; index: nu
                                             value={field.value}
                                             className="space-y-2"
                                         >
-                                            {fields.map((option, optionIndex) => (
+                                            {fields.map((option: { id: string }, optionIndex) => (
                                                 <div key={option.id} className="flex items-center gap-2 space-y-0">
                                                     <FormControl>
-                                                        <RadioGroupItem value={option.id} id={`${field.name}-${option.id}`} />
+                                                        <RadioGroupItem value={option.id} />
                                                     </FormControl>
                                                     <FormField
                                                         control={form.control}
