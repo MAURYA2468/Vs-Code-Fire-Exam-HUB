@@ -49,8 +49,6 @@ export default function AboutUsPage() {
                         <Link href="/" className="text-sm font-medium text-gray-500 hover:text-primary">HOME</Link>
                         <Link href="/about" className="border-b-2 border-primary text-sm font-semibold text-primary">ABOUT US</Link>
                         <Link href="/campaign" className="text-sm font-medium text-gray-500 hover:text-primary">OUR CAMPAIGN</Link>
-                        <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">NEWS</Link>
-                        <Link href="#" className="text-sm font-medium text-gray-500 hover:text-primary">CONTACT</Link>
                     </nav>
                     <div className="flex items-center gap-4">
                         <Search className="h-6 w-6 text-gray-500" />
