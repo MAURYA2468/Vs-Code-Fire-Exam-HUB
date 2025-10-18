@@ -8,7 +8,7 @@ First, make sure you have Node.js and npm installed on your machine.
 
 Then, in your project root directory, run:
 
-                                                    1.  npm install
+                                                        npm install
 
 
 This command will:
@@ -21,7 +21,7 @@ Install all required project dependencies into the node_modules folder.
 
 To interact with Firebase (for deployment, hosting, etc.), install the Firebase CLI globally:
 
-                                                    2.  npm install -g firebase-tools
+                                                      npm install -g firebase-tools
 
 
 This command allows you to use the firebase command anywhere in your terminal.
@@ -32,7 +32,7 @@ This command allows you to use the firebase command anywhere in your terminal.
 
 Run:
 
-                                                     3. npm run build
+                                                      npm run build
 
 
 This will:
@@ -45,7 +45,7 @@ Typically outputs to a build/ or dist/ directory, depending on the configuration
 
 To launch the project locally:
 
-                                                          4.  npm start
+                                                            npm start
 
 
 This command:
